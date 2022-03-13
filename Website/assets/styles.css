@@ -72,3 +72,22 @@
   color: #f1356d;
   margin-bottom: 8px;
 }
+.search-bar{
+  height: 600px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.form-group h3 strong{
+  font-size: 40px;
+  color: #f1356d;
+}
+.form-group{
+  width: 800px;
+}
+
+.suggestions ul {
+  list-style: none;
+}
+

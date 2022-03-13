@@ -5,9 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search</title>
+    
+    <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/styles.css">
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 </head>
 <body>
+
+    <div class="search-bar">
+            <form methode="" action="">
+                <div class="form-group">
+                    <h3><strong>Mark Search</strong></h3>
+                    <input type ="text" name="name" class="form-control" value ='' onkeyup = "showsuggestions(this.value)">
+                    <div class="suggestions">
+                        <ul>
+                            <li>Mark</li>
+                            <li>Bemoi</li>
+                            <li>Karim</li>
+                            <li>Karim</li>
+                            <li>Karim</li>
+                            <li>Karim</li>
+                            <li>Karim</li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+    </div>
     <script src="/assets/results.js"></script>
 </body>
 </html>
