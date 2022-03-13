@@ -17,7 +17,7 @@
 * {
   margin: 0;
   font-family: "Quicksand";
-  color: #333;
+  /* color: #333; */
 }
 .navbar {
   padding: 20px;
@@ -72,22 +72,41 @@
   color: #f1356d;
   margin-bottom: 8px;
 }
-.search-bar{
-  height: 600px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+
+/*-------------Logo and searchbar-----------------*/
+.search-sec{
+  margin-top: 200px;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
-.form-group h3 strong{
-  font-size: 40px;
+
+.search-bar h3{
+  font-size: 70px;
   color: #f1356d;
+  margin: 20px;
 }
-.form-group{
-  width: 800px;
+/*Width of the search bar*/
+.form-outline{
+    width: 500px !important;
+    height: 40px !important;
 }
 
 .suggestions ul {
   list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  text-align: left;
+  border: 1px solid #f2f2f2;
 }
-
+.suggestions ul li{
+    margin-left: 10px;
+    transition: 0.3s;
+}
+.suggestions ul li:hover{
+    background-color: #fafafa;
+    cursor: pointer;
+}
