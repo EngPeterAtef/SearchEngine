@@ -4,10 +4,33 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results</title>
+    <link rel="stylesheet" href="../assets/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <title>Results</title>
 </head>
 <body>
+    <div class="App">
+        <nav class="navbar">
+            <h1>Mark Search</h1>
+            <div class="links">
+                <a href="/">Home</a>
+                <a href="/create">New Blog</a>
+            </div>
+        </nav>
+        <div class="content">
+            <div class="results">
+                <div class="link-card">
+                    <h1>Results </h2>
+                        <% for(var i=0;i<50;i++){ %> 
+                        <div class="link-preview">
+                            <h2 class="link"><a href="https://www.facebook.com">Facebook - Home</a> </h2>
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Repudiandae perspiciatis vero repellendus error? 
+                                Accusamus pariatur nulla sunt, inventore eius amet animi asperiores.</p> 
+                        </div>
+                        <% } %> 
+                </div>
+            </div>
+        </div>
     <script src="/assets/search.js"></script>
 </body>
 </html>
