@@ -29,5 +29,27 @@ $(document).ready(function(){
         });
         return false;
     });
+
+    $('form .btn-primary').on('click', function(){
+      //var that holds the text input
+      let typed = $('form input');
+      //object containing the data typed in the inpufield
+      let search = {_TITLE: typed.val()};
+      //Send the data to the server (searchController.js)
+      console.log("ajax start");
+      $.ajax({
+        
+        type: 'GET',
+        //make request to this url, handled(received) by app.post in searchController.js
+        url: '/search/'+typed.val(),
+
+        //here we receive the results
+        success: function(data){
+          console.log(data + "added to db");
+        }
+      });
+      return false;
+  });
+
 });
   
