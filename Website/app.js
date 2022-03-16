@@ -7,9 +7,9 @@ var express = require('express');
 //----------------CONNECTION TO MONGODB---------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
-// var mongoose=require('mongoose');
-// //at the end is the database name
-// mongoose.connect('mongodb://localhost:27017/SearchEngine');
+var mongoose=require('mongoose');
+//at the end is the database name
+mongoose.connect('mongodb://localhost:27017/SearchEngine');
 //----------------------------------------------------------
 
 //using controller
