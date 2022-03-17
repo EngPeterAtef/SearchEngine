@@ -3,15 +3,15 @@
 //----------------------MONGODB SCHEMA----------------------
 //----------------------------------------------------------
 //----------------------------------------------------------
-// var mongoose=require('mongoose');
+var mongoose=require('mongoose');
 // //make a schema to know what kind of info to expect from db
 // //this is not our schema yet..
-// var resultsSchema = new mongoose.Schema({
-//     _URL: String,
-//     _Title: String
-// }, {collection: "crawler"});
+var resultsSchema = new mongoose.Schema({
+    url: String,
+    title: String
+}, {collection: "crawler"});
 
 // //create a model based on this schema
-// var results = mongoose.model('results', resultsSchema);
+var resultss = mongoose.model('resultss', resultsSchema);
 // //export the model to use it in controller
-// module.exports = results;
+module.exports = resultss;
