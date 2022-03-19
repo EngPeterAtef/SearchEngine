@@ -1,11 +1,60 @@
 console.log("connected");
 $(document).ready(function(){
+  //--------------Search Bar Responsive Events--------------//
+  //to make onclick event
+  var isPressed = false;
+  $(document).mouseup(function(e){
+    var container = $("form");
+    // If the target of the click isn't the container
+    if(!container.is(e.target) && container.has(e.target).length === 0){
+      isPressed=false;
+      $(this).css("background-color", "#121212");
+      $('.searchBox .search').css("background-color", "#121212");
+      $('.searchBox').css("background-color", "#121212");
+      $('form').css("border", "1px solid #808080");
+      $('ul').hide();
+    }
+});
+  $('form').click(function(){
+    isPressed=true;
+    $(this).css("background-color", "#303030");
+    $('.searchBox .search').css("background-color", "#303030");
+    $('.searchBox').css("background-color", "#303030");
+    $('form').css("border", "1px solid #303030");
+    $('ul').show();
+  });
+  //to make hover event
+  $('form').mouseover(function(){
+    $(this).css("background-color", "#303030");
+    $('.searchBox .search').css("background-color", "#303030");
+    $('.searchBox').css("background-color", "#303030");
+    $('form').css("border", "1px solid #303030");
+ 
+  });
+  $('form').mouseout(function(){
+    if(!isPressed)
+    {
+      $(this).css("background-color", "#121212");
+      $('.searchBox .search').css("background-color", "#121212");
+      $('.searchBox').css("background-color", "#121212");
+      $('form').css("border", "1px solid #808080");
+    }
+  });
+  //--------------------------------------------------------//
+  //----------------ON CLICK ON THE RESULT------------------//
+  $('ul li').click(function(){
+    window.alert(item);
+    item =  $('ul li').val();
+    $('#searchWord').val(item);
+    
+  });
+  //--------------------------------------------------------//
     //On key up event
-    $('.input-group .form-outline .form-control').on('keyup', function(){
+    $('#searchWord').on('keyup', function(){
         //var that holds the text input
-        let typed = $('form input');
+        let typed = $('#searchWord');
         if (!typed.val()) {
-            $('.suggestions ul').empty();
+            $('ul').empty();
             return;
         }
         //object containing the data typed in the inpufield
@@ -20,19 +69,22 @@ $(document).ready(function(){
           //here we receive the results
           success: function(data){
             //clear the prev suggestions
-            $('.suggestions ul').empty();
+            $('ul').empty();
             for (let i = 0; i < data.length; i++) {
                 //append new results to list
-                $('.suggestions ul').append(`<li>${data[i]._TITLE}</li>`);
+                if(i+1 != data.length)
+                  $('ul').append(`<li>${data[i]._TITLE}</li>`);
+                else
+                  $('ul').append(`<li style="border-bottom-right-radius:20px;border-bottom-left-radius:20px">${data[i]._TITLE}</li>`);
             }
           }
         });
         return false;
     });
 
-    $('form .btn-primary').on('click', function(){
+    $('#searchBtn').on('click', function(){
       //var that holds the text input
-      let typed = $('form input');
+      let typed = $('#searchWord');
       //object containing the data typed in the inpufield
       let search = {_TITLE: typed.val()};
       //Send the data to the server (searchController.js)
