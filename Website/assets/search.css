@@ -6,19 +6,19 @@
 }
 
 :root {
-  --background_color: #202124;
-  --textbox_color: #A9A9A9;
+  --background_color: #121212;
+  --textbox_color: #808080;
 }
 
 body{
-  background-color: #202124;
+  background-color: var(--background_color);
 }
 section{
   position: absolute;
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 200px;
+  padding-top: 200px;
   min-height: 100vh;
   
 }
@@ -34,7 +34,7 @@ form{
 .searchBox{
   display: flex;
   justify-content: space-between;
-  width: 500px;
+  width: 550px;
   height: 40px;
   border-radius: 20px;
   background-color: var(--background_color);
@@ -51,9 +51,6 @@ button i{
   color: white;
 }
 
-form:hover{
-  background-color: var(--textbox_color);
-}
 
 .searchBox .search{
   border: 0px;
@@ -74,8 +71,13 @@ form:hover{
 
 div ul li{
   list-style-type: none;  
-  margin-left: 45px;
-  margin-top: 5px;
-  margin-bottom: 13px;
+  padding-left: 45px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   color: white;
+}
+
+ul li:hover{
+background-color: #404040;
+border-radius: inherit;
 }
