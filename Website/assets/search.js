@@ -21,6 +21,7 @@ $(document).ready(function(){
       $('form').css("border", "1px solid #808080");
       $('ul').hide();
       $('hr').css("opacity", "0%");
+      $('#x').hide();
     }
 });
   $('form').click(function(){
@@ -92,12 +93,12 @@ $(document).ready(function(){
             for (let i = 0; i < data.length; i++) {
                 //append new results to list
                 if(i+1 != data.length)
-                  $('ul').append(`<li>${data[i]._TITLE}</li>`);
+                  $('ul').append(`<li> <i class="fa-solid fa-clock-rotate-left"></i> ${data[i]._TITLE}</li>`);
                 else
                 {
                   $('hr').css("opacity", "20%");
                   $('#x').show();
-                  $('ul').append(`<li style="border-bottom-right-radius:20px;border-bottom-left-radius:20px">${data[i]._TITLE}</li>`);
+                  $('ul').append(`<li style="border-bottom-right-radius:20px;border-bottom-left-radius:20px"> <i class="fa-solid fa-clock-rotate-left"></i> ${data[i]._TITLE}</li>`);
                 }
                 
             }
