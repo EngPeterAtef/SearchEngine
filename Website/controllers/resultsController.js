@@ -59,14 +59,14 @@ const blogs= [
     {"title":"48" , "snippet":"Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis temp"}
    
 ];
-const minib=[];
+let minib=[];
 var st=0;
 let btnnumbs=Math.ceil(blogs.length/5);
 module.exports = function (app) {
     //to open results page
     app.get('/results', function (req, res) {
       
-
+minib =[];
         res.render('results',{minib,btnnumbs});
       
     });
@@ -74,6 +74,7 @@ module.exports = function (app) {
     app.get("/results/:i",(req,res) => {
         var starting=  (parseInt(req.params.i)-1)*5;
         let k=0;
+        minib=[];
         for(let j=starting;j<Math.min(starting+5,blogs.length);j++)
         {
             minib[k]=blogs[j];
