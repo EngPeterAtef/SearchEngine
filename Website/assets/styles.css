@@ -110,3 +110,9 @@
     background-color: #fafafa;
     cursor: pointer;
 }
+body{
+  background-image:linear-gradient(rgba(0,0,0,0.1),rgba(0,0,0,0.1)) ,url(../pictures/CNeED1.jpg);
+}
+.in-tit,.in-sum{
+  color:blanchedalmond;
+}
