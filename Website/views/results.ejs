@@ -46,9 +46,9 @@
                 <h1 class="res_tit">Results</h2>
                     <div class="link-card"></div>
                     <div class="btns">
-<% for(let i=0;i<10;i++) 
+<% for(let i=1;i<=btnnumbs;i++) 
 {%>
-    <button class="bb"><%=i%></button>
+    <a href="/results/<%= i%>" class="bb"><%=i%></a>
 <%}%>
  
                     </div>
