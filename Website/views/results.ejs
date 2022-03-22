@@ -1,36 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/styles.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../public/resStyle.css">
+    <script src="https://kit.fontawesome.com/90f90b2740.js" crossorigin="anonymous"></script>
+    <!-- <script src="jquery-3.6.0.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Results</title>
 </head>
+
 <body>
+    <script src="../assets/results.js"></script>
     <div class="App">
         <nav class="navbar">
-            <h1>Mark Search</h1>
-            <div class="links">
-                <a href="/">Home</a>
-                <a href="/create">New Blog</a>
-            </div>
-        </nav>
-        <div class="content">
-            <div class="results">
-                <div class="link-card">
-                    <h1>Results </h2>
-                        <% for(var i=0;i<50;i++){ %> 
-                        <div class="link-preview">
-                            <h2 class="link"><a href="https://www.facebook.com">Facebook - Home</a> </h2>
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Repudiandae perspiciatis vero repellendus error? 
-                                Accusamus pariatur nulla sunt, inventore eius amet animi asperiores.</p> 
-                        </div>
-                        <% } %> 
+            <h1 class="logo">Noodle</h1>
+            <!--  -->
+            <div class="search-bar">
+
+                <div class="input-group">
+                    <form class="form-outline" method="" action="">
+                        <input type="search" id="form1" autocomplete="off" class="form-control" />
+                        <!-- <label class="form-label" for="form1"></label> -->
+                        <button type="submit" class="bt">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+
+                </div>
+                <div class="suggestions">
+                    <ul></ul>
                 </div>
             </div>
+            <!--  -->
+
+
+        </nav>
+
+
+        <div class="content">
+            <div class="results">
+                
+                <h1 class="res_tit">Results</h2>
+                    <div class="link-card"></div>
+                    <div class="btns">
+<% for(let i=1;i<=btnnumbs;i++) 
+{%>
+    <a href="/results/<%= i%>" class="bb"><%=i%></a>
+<%}%>
+ 
+                    </div>
+                        <%minib.forEach(blog=>{%>
+                             <div class="cont">
+                                 <h3 class="in-tit">
+                                     <%=blog.title%>
+                                 </h3>
+                                 <p class="in-sum">
+                                     <%=blog.snippet%>
+                                 </p>
+                             </div>
+                              <%});%>
+
+
+
+
+
+
+
+            </div>
         </div>
-    <script src="../assets/results.js"></script>
+    </div>
 </body>
+
 </html>
