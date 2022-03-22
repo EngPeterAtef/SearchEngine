@@ -9,7 +9,7 @@ var express = require('express');
 //----------------------------------------------------------
 var mongoose=require('mongoose');
 //at the end is the database name
-mongoose.connect('mongodb://localhost:27017/SearchEngine');
+mongoose.connect('mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority');
 //----------------------------------------------------------
 
 //using controller
