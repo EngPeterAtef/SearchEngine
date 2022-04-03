@@ -34,9 +34,6 @@
                     <ul></ul>
                 </div>
             </div>
-            <!--  -->
-
-
         </nav>
 
 
@@ -45,33 +42,28 @@
                 
                 <h1 class="res_tit">Results</h2>
                     <div class="link-card"></div>
-                    <div class="btns">
-<% for(let i=1;i<=btnnumbs;i++) 
-{%>
-    <a href="/results/<%= i%>" class="bb"><%=i%></a>
-<%}%>
- 
-                    </div>
                         <%minib.forEach(blog=>{%>
-                             <div class="cont">
-                                 <h3 class="in-tit">
-                                     <%=blog.title%>
-                                 </h3>
-                                 <p class="in-sum">
-                                     <%=blog.snippet%>
-                                 </p>
-                             </div>
-                              <%});%>
-
-
-
-
-
-
-
+                            <div class="cont">
+                                <h3 class="in-tit">
+                                    <%=blog.title%>
+                                </h3>
+                                <p class="in-sum">
+                                    <%=blog.snippet%>
+                                </p>
+                            </div>
+                            <%});%>
+            </div>
+            <div class="btns">
+                <% for(let i=1;i<=btnnumbs;i++){%>
+                    <a href="/results/<%= i%>" class="bb"><%=i%></a>
+                <%}%>
             </div>
         </div>
+        
+        
+        
     </div>
+    
 </body>
 
 </html>

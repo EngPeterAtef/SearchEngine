@@ -1,17 +1,15 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
 
 /*Variables*/
-:root{
-    --mainColor: black;
+:root {
+  --mainColor: black;
 }
 /*Global rules*/
-*{
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
-
 
 /* base styles */
 * {
@@ -47,16 +45,16 @@
   padding: 20px;
 }
 
-.link a{
-    text-decoration:none;
-    color: darkblue;
+.link a {
+  text-decoration: none;
+  color: darkblue;
 }
-.link a:hover{
-    text-decoration:underline;
+.link a:hover {
+  text-decoration: underline;
 }
 
-.link-preview{
-    margin: 20px;
+.link-preview {
+  margin: 20px;
 }
 /* blog previews / list */
 .blog-preview {
@@ -65,7 +63,7 @@
   border-bottom: 1px solid #fafafa;
 }
 .blog-preview:hover {
-  box-shadow: 1px 3px 5px rgba(0,0,0,0.1);
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.1);
 }
 .blog-preview h2 {
   font-size: 20px;
@@ -73,9 +71,8 @@
   margin-bottom: 8px;
 }
 
-
 /*-------------Logo and searchbar-----------------*/
-.search-sec{
+.search-sec {
   margin-top: 200px;
   text-align: center !important;
   display: flex !important;
@@ -83,15 +80,15 @@
   align-items: center !important;
 }
 
-.search-bar h3{
+.search-bar h3 {
   font-size: 70px;
   color: #f1356d;
   margin: 20px;
 }
 /*Width of the search bar*/
-.form-outline{
-    width: 600px !important;
-    height: 40px !important;
+.form-outline {
+  width: 600px !important;
+  height: 40px !important;
 }
 
 .suggestions ul {
@@ -102,17 +99,19 @@
   text-align: left;
   border: 1px solid #f2f2f2;
 }
-.suggestions ul li{
-    margin-left: 10px;
-    transition: 0.3s;
+.suggestions ul li {
+  margin-left: 10px;
+  transition: 0.3s;
 }
-.suggestions ul li:hover{
-    background-color: #fafafa;
-    cursor: pointer;
+.suggestions ul li:hover {
+  background-color: #fafafa;
+  cursor: pointer;
 }
-body{
-  background-image:linear-gradient(rgba(0,0,0,0.1),rgba(0,0,0,0.1)) ,url(../pictures/CNeED1.jpg);
+body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url(../pictures/CNeED1.jpg);
 }
-.in-tit,.in-sum{
-  color:blanchedalmond;
+.in-tit,
+.in-sum {
+  color: blanchedalmond;
 }
