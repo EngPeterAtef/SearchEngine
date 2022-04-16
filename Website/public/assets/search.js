@@ -122,7 +122,7 @@ $(document).ready(function(){
         //here we receive the results
         success: function(data){
           //console.log(data);
-          
+          window.location.assign('/results/'+typed.val());
         }
       });
       return false;

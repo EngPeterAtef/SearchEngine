@@ -8,7 +8,8 @@ var mongoose=require('mongoose');
 // //this is not our schema yet..
 var resultsSchema = new mongoose.Schema({
     url: String,
-    title: String
+    title: String,
+    snippet: String
 }, {collection: "crawler"});
 
 // //create a model based on this schema

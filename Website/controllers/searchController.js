@@ -27,7 +27,7 @@ module.exports = function (app) {
                 };
                 let newSearch = searchModel(newObj).save(function(err,data){
                     if(err)  throw err;
-                    //res.json(data);
+                    res.json(data);
                     //res.render('/=results',{dummy1,dummy1});
                     //res.redirect('/results',{dummy1,dummy1});
                 });
@@ -35,12 +35,12 @@ module.exports = function (app) {
             else{
                 let updateSearch = searchModel.updateOne({_TITLE: data[0]._TITLE},{$inc:{_COUNTER: 1}},function(err,result){
                     if(err)  throw err;
-                    //res.json(data);
+                    res.json(data);
                     //res.render('results',{dummy1,dummy1});
                     //res.redirect('/results',{dummy1,dummy1});
                 });
             }
-            res.redirect('http://localhost:3000/results/');
+            
         });
     });
 
