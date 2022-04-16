@@ -12,12 +12,13 @@ module.exports = function (app) {
         res.render('search');
     });
 
-    //TO BE UPDATED - HAS UNDEFINED ERROR
     app.get('/search/:title', function (req, res) {
         searchModel.find({_TITLE: req.params.title}, function (error, data) {
             if (error) {
                 throw error;
             }
+            let dummy1 = [];
+            let dummy2 = [];
             //update counter
             if(data.length === 0){
                 let newObj ={
@@ -26,15 +27,20 @@ module.exports = function (app) {
                 };
                 let newSearch = searchModel(newObj).save(function(err,data){
                     if(err)  throw err;
-                    res.json(data);
+                    //res.json(data);
+                    //res.render('/=results',{dummy1,dummy1});
+                    //res.redirect('/results',{dummy1,dummy1});
                 });
             }
             else{
                 let updateSearch = searchModel.updateOne({_TITLE: data[0]._TITLE},{$inc:{_COUNTER: 1}},function(err,result){
                     if(err)  throw err;
-                    res.json(result);
+                    //res.json(data);
+                    //res.render('results',{dummy1,dummy1});
+                    //res.redirect('/results',{dummy1,dummy1});
                 });
             }
+            res.redirect('http://localhost:3000/results/');
         });
     });
 

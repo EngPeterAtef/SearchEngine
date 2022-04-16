@@ -121,6 +121,8 @@ $(document).ready(function(){
 
         //here we receive the results
         success: function(data){
+          //console.log(data);
+          
         }
       });
       return false;
