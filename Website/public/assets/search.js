@@ -2,6 +2,9 @@ console.log("connected");
 $(document).ready(function(){
   $('#x').hide();
   $('#x').css("opacity", "100%");
+  $('form').css("background-color", "#121212");
+  $('.searchBox .search').css("background-color", "#121212");
+  $('.searchBox').css("background-color", "#121212");
   //--------------Search Bar Responsive Events--------------//
   $('#x').click(function(){
     $('#searchWord').val(' ');
@@ -93,7 +96,7 @@ $(document).ready(function(){
             for (let i = 0; i < data.length; i++) {
                 //append new results to list
                 if(i+1 != data.length)
-                  $('ul').append(`<li> <i class="fa-solid fa-clock-rotate-left"></i> ${data[i]._TITLE}</li>`);
+                  $('ul').append(`<li><i class="fa-solid fa-clock-rotate-left"></i>${data[i]._TITLE}</li>`);
                 else
                 {
                   $('hr').css("opacity", "20%");
@@ -101,6 +104,9 @@ $(document).ready(function(){
                   $('ul').append(`<li style="border-bottom-right-radius:20px;border-bottom-left-radius:20px"> <i class="fa-solid fa-clock-rotate-left"></i> ${data[i]._TITLE}</li>`);
                 }
                 
+            }
+            if(data.length === 0) {
+              $('hr').css("opacity", "0%");
             }
           }
         });

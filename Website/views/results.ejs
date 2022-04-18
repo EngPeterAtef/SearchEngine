@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="/assets/resStyle.css">
-    <script src="https://kit.fontawesome.com/90f90b2740.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/assets/search.css">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
     <!-- <script src="jquery-3.6.0.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Results</title>
@@ -24,20 +25,19 @@
                 
             </h1>
             <!--  -->
-            <div class="search-bar">
-                <div class="input-group">
-                    <form class="form-outline" method="" action="">
-                        <input type="search" id="form1" autocomplete="off" class="form-control" />
-                        <!-- <label class="form-label" for="form1"></label> -->
-                        <button type="submit" class="bt">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
+            <form>
+                <div class="searchBox">
+                    <button type="submit" id="searchBtn"> <i class="fa fa-magnifying-glass"></i></button>
+                    <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off">
+                    <div>
+                        <button type="button"> <i class="fa-solid fa-xmark" id="x"></i></button>
+                        <button type="button"> <i class="fa fa-microphone"></i></button>
+                    </div>
                 </div>
-                <div class="suggestions">
-                    <ul></ul>
-                </div>
-            </div>
+                <hr>
+                <ul>
+                </ul>
+            </form>
         </nav>
 
 
@@ -63,10 +63,7 @@
                 <%}%>
             </div>
         </div>
-        
-        
-        
     </div>
+    <script src="/assets/search.js"></script>
 </body>
-
 </html>
