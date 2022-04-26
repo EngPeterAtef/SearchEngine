@@ -13,7 +13,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
- class CrawlerRunnable implements Runnable{
+
+class CrawlerRunnable implements Runnable{
     Crawler crawler;
     CrawlerRunnable(Crawler c){
         this.crawler = c;
@@ -28,7 +29,7 @@ public class Crawler{
     //Maximum depth of crawler recursive calls
     private static final int MAX_DEPTH = 2;
     //Maximum number of total visited pages, 5000 in this project
-    private static final int MAX_PAGES = 10;
+    private static final int MAX_PAGES = 200;
     //number of threads used
     private static int NUM_THREADS = 8;
     //first link to start crawling from
@@ -74,12 +75,24 @@ public class Crawler{
 
     public void StartCrawler()
     {
-//            synchronized (this) {
+            synchronized (this) {
+                while (Integer.parseInt(Thread.currentThread().getName()) + 1 > URLs.size()){
+                    try {
+                        System.out.println("Thread: " + Thread.currentThread().getName() + " ,Size: " + URLs.size() + " " + this);
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("Thread: " + Thread.currentThread().getName() + " ,woke up");
+            }
 //        this.ID = Integer.parseInt(Thread.currentThread().getName());
         for (int i = Integer.parseInt(Thread.currentThread().getName()); i < URLs.size(); i+= NUM_THREADS) {
 //            System.out.println("Thread: "+ Integer.parseInt(Thread.currentThread().getName()));
                 URLQueue URLObj = URLs.get(i);
+                System.out.println(URLObj.url);
                 if (!URLObj.visited) {
+//                System.out.println("not visited");
                     String url = URLObj.url;
                     Document doc = request(url);
                     if (doc != null) {
@@ -91,27 +104,32 @@ public class Crawler{
                             UpdateQueueFile(gson);
                             WriteToDataFile(data,gson);
 //                        }
-                        crawl(1, doc);
+                        crawl(Integer.parseInt(Thread.currentThread().getName()), doc);
                     }
                 }
             }
-//        }
     }
     private void crawl(int level , Document doc){
-        if(level <= MAX_DEPTH && Counter <= MAX_PAGES){
+//        if(level <= MAX_DEPTH && Counter <= MAX_PAGES){
             if(doc != null)
             {
                 //-------GET OTHER LINKS------
                 for(Element link :  doc.select("a[href]")){
                     String next_link = link.absUrl("href");
-                    if(visitedLinks.contains(next_link) == false){
-                        URLQueue nxtLink = new URLQueue(next_link, false, Integer.parseInt(Thread.currentThread().getName()));
+                    if(visitedLinks.contains(next_link) == false && URLs.size() < MAX_PAGES){
+                        System.out.println("Thread: "+ level);
+
+                        URLQueue nxtLink = new URLQueue(next_link, false, level);
                         WriteToQueueFile(nxtLink, gson);
                         visitedLinks.add(next_link);
+                        synchronized (this){
+                            System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
+                            notifyAll();
+                        }
                     }
                 }
             }
-        }
+//        }
     }
     private Document request(String url)
     {
@@ -139,8 +157,8 @@ public class Crawler{
             queueReader = Files.newBufferedReader(Paths.get("queue.json"));
             dataReader = Files.newBufferedReader(Paths.get("data.json"));
 
-            dataWriter = Files.newBufferedWriter(Paths.get("data.json"));
-            queueWriter = Files.newBufferedWriter(Paths.get("queue.json"));
+//            dataWriter = Files.newBufferedWriter(Paths.get("data.json"));
+//            queueWriter = Files.newBufferedWriter(Paths.get("queue.json"));
 
 
             // convert JSON array to list of users
@@ -149,6 +167,9 @@ public class Crawler{
             if (CollectedData == null) {
 
                 System.out.println("data NULL");
+            }else {
+
+                System.out.println("data not NULL");
             }
 
             //--IF THE FILE IS EMPTY, INSERT SEEDS--
@@ -157,14 +178,14 @@ public class Crawler{
                 System.out.println("queue NULL");
                 URLQueue link1= crawlerObj.new URLQueue("http://www.risemysticct.com/", false, -1);
                 URLQueue link2= crawlerObj.new URLQueue("https://www.nytimes.com/", false, -1);
-                URLQueue link3= crawlerObj.new URLQueue("https://www.google.com/", false, -1);
+                URLQueue link3= crawlerObj.new URLQueue("https://www.wikipedia.org/", false, -1);
                 WriteToQueueFile(link1, gson);
                 WriteToQueueFile(link2, gson);
                 WriteToQueueFile(link3, gson);
             }
             //--FILE IS NOT EMPTY, THEN CONTINUE FROM LAST STATE
             else {
-
+                System.out.println("queue not NULL");
                 /********
                  * STILL NOT COMPLETE
                  * ******/
@@ -189,12 +210,12 @@ public class Crawler{
 
         Thread[] threads = new Thread[NUM_THREADS];
 //        String[] startLinks = new String[NUM_THREADS];
-        Crawler crawler = new Crawler();
+//        Crawler crawler = new Crawler();
 
         for (int i = 0; i < NUM_THREADS; i++) {
 //            startLinks[i] = URLs.get(i).url;
 //            System.out.println(startLinks[i]);
-            threads[i] = new Thread(new CrawlerRunnable(crawler));
+            threads[i] = new Thread(new CrawlerRunnable(crawlerObj));
             threads[i].setName(String.valueOf(i));
             threads[i].start();
         }
