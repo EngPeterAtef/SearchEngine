@@ -3,6 +3,7 @@
 /*Variables*/
 :root {
   --mainColor: black;
+  --background_color: #202020
 }
 /*Global rules*/
 * {
@@ -108,8 +109,7 @@
   cursor: pointer;
 }
 body {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
-    url(../pictures/CNeED1.jpg);
+  background-color: var(--background_color);;
 }
 .in-tit,
 .in-sum {
