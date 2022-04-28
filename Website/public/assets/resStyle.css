@@ -1,5 +1,9 @@
+:root {
+  --background_color: #202020;
+  --textbox_color: #808080;
+}
 body{
-    background-image:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)) ,url(../pictures/db2.jpg);
+    background-color: var(--background_color);;
     color:white;
     background-attachment: fixed;
   }
@@ -7,21 +11,23 @@ body{
     /* color:#1A488E; */
     color:rgb(233, 223, 223);
   }
-  .in-sum{
-      /* color:#D7A09B; */
-      color:#ffe0b2bb;
-  }
+
 
   .navbar {
-    
+    overflow: hidden;
     display: flex;
     padding-left: 20px;
     align-items: center;
     margin-bottom: 20px;
+    position: sticky;
+    top: 0;
     /* justify-content: space-evenly; */
     /* background-color: aqua; */
     
 
+  }
+  .content{
+    margin-top: 30px;
   }
   .res_tit{
     color:#FDA300;
@@ -29,7 +35,9 @@ body{
   .logo{
     color:#FDA300;
       font-size: 3em;
-      margin-right: 6%;
+      margin-right: 2%;
+      margin-top: 30px;
+      margin-left: 10px;
   }
   .input-group,.form-outline{
       width:1000px;
@@ -74,38 +82,45 @@ font-size:1.5em;
 color:#000000d5;
   }
   .results{
-      margin-left:21%;
+      margin-left:200px;
   }
   .cont{
       /* background-color: aqua; */
       width:80%;
       border-radius: 15px;
-      background-color: rgba(0, 0, 0, 0.349);
+      background-color: #262626;
        /* padding-left: 20px;
       padding-top:10px;  */
       max-height:200px;
       min-height: 150px;
+      padding: 5px;
+      margin-bottom: 5px;
+      margin-top: 10px;
      
   }
-  .cont:hover{
-    background-color: rgba(56, 56, 56, 0.671);
-    cursor: pointer;
-  }
-  .cont:hover .in-sum{
-      color:#131212;
-  }
-  .cont:hover .in-tit{
-    color:#131212;
-}
+
   .in-tit{
       margin-top:10px;
       margin-left:10px;
       font-size: 24px;
       
   }
+  .in-tit a{
+    color:#4285F4;
+    text-decoration: none;
+    padding-bottom: 5px;
+    
+}
+.in-tit a:hover{
+  text-decoration: underline;
+  
+}
   .in-sum{
       margin-left:10px;
-      font-size: 20px;
+      margin-top:10px;
+      font-size: 15px;
+      
+      color:#808080;
   }
   .in-tit:hover{
       /* font-size:28px ; */
@@ -138,4 +153,13 @@ color:#000000d5;
   color: #d48d0a;
   cursor: pointer;
  
+}
+.btns{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.btns a{
+  margin-left: 5px;
 }
