@@ -186,11 +186,14 @@ public class Indexer{
             // intilaise alll words strings
             LinkedHashSet<String> allWords = new LinkedHashSet<String>();
             LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
-
+Integer o=0;
             for (Data w : CollectedData) {
+
                 allWords.addAll(Stream.of(Jsoup.parse(w.html).text().toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
-
+o++;
+if(o==4)
+    break;
 
             }
             PorterStemmer p = new PorterStemmer();
@@ -203,9 +206,7 @@ public class Indexer{
             while (itery.hasNext())
             {
 
-                allWords2.add(itery.next().toString().replaceAll("[^a-zA-Z0-9_]", "")) ;
-
-
+                allWords2.add(itery.next().toString().replaceAll("[^a-zA-Z0-9_-]", "")) ;
 
             }
 
@@ -214,20 +215,20 @@ public class Indexer{
 
             Iterator iter = allWords2.iterator();
             allWords.clear();
-          //  int cou=0;
+            //  int cou=0;
             while (iter.hasNext())
             {
                 allWords.add(p.stem(iter.next().toString().replaceAll("[^a-zA-Z0-9_-]", ""))) ;
-               // cou++;
+                // cou++;
             }
-           int z=0;
-//            for (String elemett:allWords)
-//            {
-//
-//                writerr.write(elemett);
-//
-//                writerr.write(System.lineSeparator());
-//            }
+            int z=0;
+            for (String elemett:allWords)
+            {
+
+                writerr.write(elemett);
+
+                writerr.write(System.lineSeparator());
+            }
             ////////////////////////////////////////////
             writerr.close();
             // h1 h2 h3 h4
@@ -244,59 +245,68 @@ public class Indexer{
             //    // Document doc = Jsoup.parse(CollectedData.get(0).html);
             //     writerr.write(CollectedData.get(0).html.replaceAll("\\<.*?\\>", ""));
 
-int k=0;
-int ew=0;
+
+            int ew=0;
+            allWords.remove("");
 
             FileWriter writer2 = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
 
             writer2.write("WORD       URL          count         locations\n");
 
-             for (String aword : allWords)// ma3aya kelma
-             {
-               // String aword="ukraine";
-                 if(aword.equals(""))
-                     continue;
+           List<Document>docs=new ArrayList<Document>();
+            for (Data w : CollectedData)// le kol doc
+            {
+
+            docs.add(Jsoup.parse(w.html));
+            }
+
+            for (String aword : allWords)// ma3aya kelma
+            {
+                // String aword="ukraine";
                 HashMap <String,pair>tempo = new HashMap<String, pair>();
+                //Integer k=0;
                 ew++;System.out.println(ew);
                 // indexermap.put(aword,tempo);//add my word
-                for (Data w : CollectedData)// le kol doc
+                for (int k=0;k<4;k++)// le kol doc
                 {
-                    k++;if(k==4)break;
+
                     pair temppair = new pair();
-                    Document doc = Jsoup.parse(w.html);
 
-                   // int counter = 0;
 
-                    for (Element e : doc.select("*:containsOwn(" + aword + ")")) {// kol el elements ely gowahom el
-                                                                                  // kelma dyh
+                    // int counter = 0;
+
+                    for (Element e : docs.get(k).select("*:containsOwn(" + aword + ")")) {// kol el elements ely gowahom el
+                        // kelma dyh
                         // indexermap.get(aword).get(w.url).count++;//increment occurence
                         temppair.count++;
-//                        for (Element h : e.parents())// each tag
-//                        {
-//                           // System.out.println(h.tagName());
-//                            setlocations(h.tagName(), temppair.location);// set all locations
-//
-//
-//                        }
+                        for (Element h : e.parents())// each tag
+                        {
+                            // System.out.println(h.tagName());
+                            setlocations(h.tagName(), temppair.location);// set all locations
+
+
+                        }
 
                     }
 
-                    tempo.put(w.url, temppair);
-                    writer2.write(aword+"        "+w.url+"       "+temppair.count+"       "+temppair.location);
+                    tempo.put(CollectedData.get(k).url, temppair);
+                    writer2.write(aword+"        "+CollectedData.get(k).url+"       "+temppair.count+"       "+ IntStream.range(0, temppair.location.length())
+                           .mapToObj(b -> String.valueOf(temppair.location.get(b) ? 1 : 0))
+                          .collect(Collectors.joining())+System.lineSeparator());
                 }
 
                 indexermap.put(aword, tempo);
-               // System.out.println("hello there");
+                // System.out.println("hello there");
 
-             }
+            }
             // HashMap te=new HashMap<String,char[]>();
             // te.put("mimi",'y');
             // indexermap.put("hello",te);
-
-         //   FileWriter writer = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
+int y=7;
+            //   FileWriter writer = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
 
 //writer.write("WORD       URL          count         locations\n");
-         //   Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
+            //   Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
 
 //            while (it.hasNext()) {
 //                // System.out.println("nono");
