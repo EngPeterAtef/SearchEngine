@@ -18,16 +18,16 @@ body{
     display: flex;
     padding-left: 20px;
     align-items: center;
-    margin-bottom: 20px;
+    padding-bottom: 20px;
     position: sticky;
     top: 0;
-    /* justify-content: space-evenly; */
-    /* background-color: aqua; */
-    
-
+    z-index: 100;
+    background-color: #202020;
   }
+  
   .content{
     margin-top: 30px;
+    position: relative;
   }
   .res_tit{
     color:#FDA300;
