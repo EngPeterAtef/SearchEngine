@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 //import org.jsoup.Jsoup;
 //import org.jsoup.nodes.Document;
@@ -176,49 +177,65 @@ public class Indexer{
             // create Gson instance
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             // create a reader
-            Reader reader = Files.newBufferedReader(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/data.json"));
+            Reader reader = Files.newBufferedReader(Paths.get("data.json"));
             CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {
             }.getType());// array of json objects websites
             reader.close();
             // array of stop words
-            stopwords = Files.readAllLines(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/stop_words_english.txt"));
+            stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
             // intilaise alll words strings
             LinkedHashSet<String> allWords = new LinkedHashSet<String>();
             LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
 //nteger o=0;
-            for (Data w : CollectedData) {
 
-                allWords.addAll(Stream.of(Jsoup.parse(w.html).text().toLowerCase().split(" "))
+            List<Document>docs=new ArrayList<Document>();
+            for (int i = 0; i < CollectedData.size(); i++) {
+                docs.add(Jsoup.parse(CollectedData.get(i).html));
+                allWords2.addAll(Stream.of(docs.get(i).text().replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
-//o++;
-//if(o==4)
-//    break;
-
             }
+//            for (Data w : CollectedData)// le kol doc
+//            {
+//                docs.add(Jsoup.parse(w.html));
+//            }
+//
+//
+//
+//            for (Data w : CollectedData) {
+//
+//                allWords2.addAll(Stream.of(Jsoup.parse(w.html).text().toLowerCase().replaceAll("[^a-zA-Z0-9\\s]", "").split(" "))
+//                        .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
+////o++;
+////if(o==4)
+////    break;
+//
+//            }
             PorterStemmer p = new PorterStemmer();
 
-            FileWriter writerr = new FileWriter("E:/Koleya/APT/proj/mywords.txt");
+            FileWriter writerr = new FileWriter("mywords.txt");
 
 
-            Iterator itery = allWords.iterator();
+            Iterator itery = allWords2.iterator();
 
-            while (itery.hasNext())
-            {
-
-                allWords2.add(itery.next().toString().replaceAll("[^a-zA-Z0-9_-]", "")) ;
-
-            }
+//            while (itery.hasNext())
+//            {
+//
+////                allWords2.add(itery.next().toString().replaceAll("[^a-zA-Z0-9_-]", "")) ;
+//                allWords2.add(itery.next().toString());
+//
+//            }
 
             allWords2.removeAll(stopwords);// remove all blabla
 
 
             Iterator iter = allWords2.iterator();
-            allWords.clear();
+//            allWords.clear();
             //  int cou=0;
             while (iter.hasNext())
             {
-                allWords.add(p.stem(iter.next().toString().replaceAll("[^a-zA-Z0-9_-]", ""))) ;
+//                allWords.add(p.stem(iter.next().toString().replaceAll("[^a-zA-Z0-9_-]", ""))) ;
+                allWords.add(p.stem(iter.next().toString())) ;
                 // cou++;
             }
             int z=0;
@@ -249,37 +266,35 @@ public class Indexer{
             int ew=0;
             allWords.remove("");
 
-            FileWriter writer2 = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
+            FileWriter writer2 = new FileWriter("tm.txt");
 
             writer2.write("WORD       URL          count         locations\n");
 
-           List<Document>docs=new ArrayList<Document>();
-            for (Data w : CollectedData)// le kol doc
-            {
-
-            docs.add(Jsoup.parse(w.html));
-            }
+//           List<Document>docs=new ArrayList<Document>();
+//            for (Data w : CollectedData)// le kol doc
+//            {
+//                docs.add(Jsoup.parse(w.html));
+//            }
 
             for (String aword : allWords)// ma3aya kelma
             {
                 // String aword="ukraine";
                 HashMap <String,pair>tempo = new HashMap<String, pair>();
                 //Integer k=0;
-                ew++;System.out.println(ew);
+                ew++;
+                System.out.println(ew);
                 // indexermap.put(aword,tempo);//add my word
                 for (int k=0;k<docs.size();k++)// le kol doc
                 {
-
                     pair temppair = new pair();
-
-
                     // int counter = 0;
-
-                    for (Element e : docs.get(k).select("*:containsOwn(" + aword + ")")) {// kol el elements ely gowahom el
+                    Elements selectResult = docs.get(k).select("*:containsOwn(" + aword + ")");
+                    for (Element e : selectResult) {// kol el elements ely gowahom el
                         // kelma dyh
                         // indexermap.get(aword).get(w.url).count++;//increment occurence
                         temppair.count++;
-                        for (Element h : e.parents())// each tag
+                        Elements parents = e.parents();
+                        for (Element h : parents)// each tag
                         {
                             // System.out.println(h.tagName());
                             setlocations(h.tagName(), temppair.location);// set all locations
@@ -288,8 +303,8 @@ public class Indexer{
                         }
 
                     }
-if(temppair.count!=0)
-                    tempo.put(CollectedData.get(k).url, temppair);
+                    if(temppair.count!=0)
+                        tempo.put(CollectedData.get(k).url, temppair);
                 }
 
                 indexermap.put(aword, tempo);
