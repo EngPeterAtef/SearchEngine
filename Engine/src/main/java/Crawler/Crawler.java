@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class Crawler{
     private static int NUM_THREADS = 8;
     //list of visited links to not visit a link again
     private static ArrayList<String> UrlsInQueue = new ArrayList<String>();
+    //list of robot.txt links to not visit these links
+    private static ArrayList<String> RobotLinks = new ArrayList<String>();
     //list of urls existing in queue
     private static List<URLQueue> URLs = null;
     private static List<Data> CollectedData = null;
@@ -83,7 +86,7 @@ public class Crawler{
         for (int i = Integer.parseInt(Thread.currentThread().getName()); i < URLs.size(); i+= NUM_THREADS) {
 //            System.out.println("Thread: "+ Integer.parseInt(Thread.currentThread().getName()));
                 URLQueue URLObj = URLs.get(i);
-                System.out.println(URLObj.url);
+                //System.out.println(URLObj.url);
                 if (!URLObj.visited) {
 //                System.out.println("not visited");
                     String url = URLObj.url;
@@ -96,14 +99,14 @@ public class Crawler{
 
                             //-----INSERT DATA TO FILE----
                             URLObj.visited = true;
-                            System.out.println(n);
+                            //System.out.println(n);
                             URLObj.normalization = n;
                             URLs.set(i, URLObj);
                             Data data = new Data(url, doc.html());
     //                        synchronized (gson){
                                 UpdateQueueFile(gson);
                                 WriteToDataFile(data,gson);
-                            crawl(Integer.parseInt(Thread.currentThread().getName()), doc);
+                            crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
                         }
                         else{
                             //remove from queue
@@ -117,20 +120,53 @@ public class Crawler{
     }
 
     private String NormalizeUrl(Document doc){
-        StringBuilder result = new StringBuilder();
-        String[] textArray = doc.text().split(" ");
-        for(String word : textArray){
-            result.append(word.toLowerCase().charAt(0));
+        if (doc != null)
+        {
+            StringBuilder result = new StringBuilder();
+            String[] textArray = doc.text().split(" ");
+            for(String word : textArray){
+                result.append(word.toLowerCase().charAt(0));
+            }
+            return result.toString().replaceAll("[^a-zA-Z0-9_-]", "");
         }
-        return result.toString().replaceAll("[^a-zA-Z0-9_-]", "");
+        return "";
+    }
+    private ArrayList<String> GetRobotFileLinks(String link)
+    {
+        if (link.charAt(link.length()-1) != '/')
+        {
+            link += "/";
+        }
+        ArrayList<String> robotlinks = null;
+        try(BufferedReader in = new BufferedReader(
+                new InputStreamReader(new URL(link + "robots.txt").openStream()))) {
+            robotlinks = new ArrayList<String>();
+            String line = null;
+            while((line = in.readLine()) != null) {
+                String dis = line.substring(0, Math.min(line.length(), 11));
+                if (dis.equals("Disallow: /")){
+                    //System.out.println(line);
+                    String d = link+line.substring(10,line.length()) ;
+                    robotlinks.add(d);
+                }
+
+            }
+        } catch (IOException e) {
+            //e.printStackTrace();
+        }
+        return robotlinks;
     }
 
-    private void crawl(int level , Document doc){
+    private void crawl(int level , Document doc,String url){
         if(doc != null)
         {
+            //ArrayList<String> temp = GetRobotFileLinks(url);
+            //if(temp != null) RobotLinks.addAll(temp);
+
             //-------GET OTHER LINKS------
             for(Element link :  doc.select("a[href]")){
                 String next_link = link.absUrl("href");
+
                 if(UrlsInQueue.contains(next_link) == false && URLs.size() < MAX_PAGES){
                     System.out.println("Thread: "+ level);
                     URLQueue nxtLink = new URLQueue(next_link, false, level, "");
