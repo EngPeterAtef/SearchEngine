@@ -186,14 +186,14 @@ public class Indexer{
             // intilaise alll words strings
             LinkedHashSet<String> allWords = new LinkedHashSet<String>();
             LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
-Integer o=0;
+//nteger o=0;
             for (Data w : CollectedData) {
 
                 allWords.addAll(Stream.of(Jsoup.parse(w.html).text().toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
-o++;
-if(o==4)
-    break;
+//o++;
+//if(o==4)
+//    break;
 
             }
             PorterStemmer p = new PorterStemmer();
@@ -267,7 +267,7 @@ if(o==4)
                 //Integer k=0;
                 ew++;System.out.println(ew);
                 // indexermap.put(aword,tempo);//add my word
-                for (int k=0;k<4;k++)// le kol doc
+                for (int k=0;k<docs.size();k++)// le kol doc
                 {
 
                     pair temppair = new pair();
@@ -288,15 +288,11 @@ if(o==4)
                         }
 
                     }
-
+if(temppair.count!=0)
                     tempo.put(CollectedData.get(k).url, temppair);
-                    writer2.write(aword+"        "+CollectedData.get(k).url+"       "+temppair.count+"       "+ IntStream.range(0, temppair.location.length())
-                           .mapToObj(b -> String.valueOf(temppair.location.get(b) ? 1 : 0))
-                          .collect(Collectors.joining())+System.lineSeparator());
                 }
 
                 indexermap.put(aword, tempo);
-                // System.out.println("hello there");
 
             }
             // HashMap te=new HashMap<String,char[]>();
@@ -305,26 +301,27 @@ if(o==4)
 int y=7;
             //   FileWriter writer = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
 
-//writer.write("WORD       URL          count         locations\n");
-            //   Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
+writer2.write("WORD       URL          count         locations\n");
+               Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
 
-//            while (it.hasNext()) {
-//                // System.out.println("nono");
-//                Entry<String, HashMap<String, pair>> entry = it.next();
-//                writer.write(entry.getKey()+" ------> ");
-//                Iterator<Entry<String, pair>> itt = entry.getValue().entrySet().iterator();
-//                while (itt.hasNext()) {
-//                    Entry<String, pair> en2 = itt.next();
-//                   String kk= IntStream.range(0, en2.getValue().location.length())
-//                            .mapToObj(b -> String.valueOf(en2.getValue().location.get(b) ? 1 : 0))
-//                            .collect(Collectors.joining());
-//                   writer.write(en2.getKey()+" ------> ");
-//                    writer.write(en2.getValue().count.toString()+" ---------> "+kk+System.lineSeparator());
-//
-//
-//                }
-//            }
-//            writer.close();
+            while (it.hasNext()) {
+                // System.out.println("nono");
+                Entry<String, HashMap<String, pair>> entry = it.next();
+                writer2.write(entry.getKey()+" ------> ");
+                Iterator<Entry<String, pair>> itt = entry.getValue().entrySet().iterator();
+                while (itt.hasNext()) {
+                    Entry<String, pair> en2 = itt.next();
+                   String kk= IntStream.range(0, en2.getValue().location.length())
+                            .mapToObj(b -> String.valueOf(en2.getValue().location.get(b) ? 1 : 0))
+                            .collect(Collectors.joining());
+                   writer2.write(en2.getKey()+" ------> ");
+                    writer2.write(en2.getValue().count.toString()+" ---------> "+kk+System.lineSeparator());
+
+
+                }
+                writer2.write(System.lineSeparator());
+            }
+            writer2.close();
 
         } catch (Exception ex) {
             ex.printStackTrace();
