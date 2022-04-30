@@ -267,7 +267,7 @@ if(o==4)
                 //Integer k=0;
                 ew++;System.out.println(ew);
                 // indexermap.put(aword,tempo);//add my word
-                for (int k=0;k<4;k++)// le kol doc
+                for (int k=0;k<docs.size();k++)// le kol doc
                 {
 
                     pair temppair = new pair();
