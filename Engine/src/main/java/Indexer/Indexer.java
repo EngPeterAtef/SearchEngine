@@ -1,19 +1,13 @@
 
 
         package Indexer;
-        //import Controller.Controller;
+     import Database.Controller;
         import com.mongodb.client.MongoCollection;
         import com.mongodb.client.MongoDatabase;
         import opennlp.tools.stemmer.PorterStemmer;
         import com.google.gson.*;
         import com.google.gson.reflect.TypeToken;
-// import org.jsoup.Connection;
-// import org.jsoup.Jsoup;
-// import org.jsoup.nodes.Document;
-// import org.jsoup.nodes.Element;
-//import java.lang.*;
         import static com.mongodb.client.model.Filters.eq;
-
         import com.mongodb.MongoException;
       //  import org.bson.Document;
         import com.mongodb.client.MongoClient;
@@ -334,71 +328,64 @@ Thread t0=new Thread(ob);
                 indexermap.putAll(subindexermap.get(i));
             }
 
-            int y=7;
 
-//            String uri = "mongodb+srv://doaa:<password>@cluster0.zu6vd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-//            MongoClient mongo = MongoClients.create(uri);
-//            MongoDatabase database = mongo.getDatabase("myData");
-//            //get collection
-//            MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+Controller.indexerone(indexermap);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//            FileWriter writer2 = new FileWriter("tm.txt");
+//
+//            writer2.write("WORD       URL          count         locations\n");
+//            Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
+//
+//            while (it.hasNext()) {
+//                // System.out.println("nono");
+//                Entry<String, HashMap<String, pair>> entry = it.next();
+//                writer2.write(entry.getKey()+" ------> ");
+//                Iterator<Entry<String, pair>> itt = entry.getValue().entrySet().iterator();
+//                while (itt.hasNext()) {
+//                    Entry<String, pair> en2 = itt.next();
+//                    String kk= IntStream.range(0, en2.getValue().location.length())
+//                            .mapToObj(b -> String.valueOf(en2.getValue().location.get(b) ? 1 : 0))
+//                            .collect(Collectors.joining());
+//                    writer2.write(en2.getKey()+" ------> ");
+//                    writer2.write(en2.getValue().count.toString()+" ---------> "+kk+System.lineSeparator());
 //
 //
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            FileWriter writer2 = new FileWriter("tm.txt");
-
-            writer2.write("WORD       URL          count         locations\n");
-            Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
-
-            while (it.hasNext()) {
-                // System.out.println("nono");
-                Entry<String, HashMap<String, pair>> entry = it.next();
-                writer2.write(entry.getKey()+" ------> ");
-                Iterator<Entry<String, pair>> itt = entry.getValue().entrySet().iterator();
-                while (itt.hasNext()) {
-                    Entry<String, pair> en2 = itt.next();
-                    String kk= IntStream.range(0, en2.getValue().location.length())
-                            .mapToObj(b -> String.valueOf(en2.getValue().location.get(b) ? 1 : 0))
-                            .collect(Collectors.joining());
-                    writer2.write(en2.getKey()+" ------> ");
-                    writer2.write(en2.getValue().count.toString()+" ---------> "+kk+System.lineSeparator());
-
-
-                }
-                writer2.write(System.lineSeparator());
-            }
-            writer2.close();
+//                }
+//                writer2.write(System.lineSeparator());
+//            }
+//            writer2.close();
 
         } catch (Exception ex) {
             ex.printStackTrace();
