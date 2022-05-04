@@ -109,7 +109,7 @@ $(document).ready(function(){
             return;
         }
         //object containing the data typed in the inpufield
-        let search = {_TITLE: typed.val()};
+        let search = {title: typed.val()};
         //Send the data to the server (searchController.js)
         $.ajax({
           type: 'POST',
@@ -126,12 +126,12 @@ $(document).ready(function(){
             for (let i = 0; i < data.length; i++) {
                 //append new results to list
                 if(i+1 != data.length)
-                  $('ul').append(`<li><i class="fa-solid fa-clock-rotate-left"></i>${data[i]._TITLE}</li>`);
+                  $('ul').append(`<li><i class="fa-solid fa-clock-rotate-left"></i>${data[i].title}</li>`);
                 else
                 {
                   $('hr').css("opacity", "20%");
                   $('#x').show();
-                  $('ul').append(`<li style="border-radius: 0 0 20px 20px"><i class="fa-solid fa-clock-rotate-left"></i>${data[i]._TITLE}</li>`);
+                  $('ul').append(`<li style="border-radius: 0 0 20px 20px"><i class="fa-solid fa-clock-rotate-left"></i>${data[i].title}</li>`);
                 }
                 
             }
@@ -151,7 +151,7 @@ $(document).ready(function(){
       //var that holds the text input
       let typed = $('#searchWord');
       //object containing the data typed in the inpufield
-      let search = {_TITLE: typed.val()};
+      let search = {title: typed.val()};
       //Send the data to the server (searchController.js)
       $.ajax({
         

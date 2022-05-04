@@ -39,3 +39,7 @@ gradle-app.setting
 .idea/mongoSettings.xml
 data.json
 queue.json
+mywords.txt
+output.txt
+queue - Copy.json
+tm.txt

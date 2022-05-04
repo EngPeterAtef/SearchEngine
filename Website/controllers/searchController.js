@@ -13,7 +13,7 @@ module.exports = function (app) {
     });
 
     app.get('/search/:title', function (req, res) {
-        searchModel.find({_TITLE: req.params.title}, function (error, data) {
+        searchModel.find({title: req.params.title}, function (error, data) {
             if (error) {
                 throw error;
             }
@@ -22,8 +22,8 @@ module.exports = function (app) {
             //update counter
             if(data.length === 0){
                 let newObj ={
-                    _TITLE: req.params.title,
-                    _COUNTER: 1
+                    title: req.params.title,
+                    counter: 1
                 };
                 let newSearch = searchModel(newObj).save(function(err,data){
                     if(err)  throw err;
@@ -33,7 +33,7 @@ module.exports = function (app) {
                 });
             }
             else{
-                let updateSearch = searchModel.updateOne({_TITLE: data[0]._TITLE},{$inc:{_COUNTER: 1}},function(err,result){
+                let updateSearch = searchModel.updateOne({title: data[0].title},{$inc:{counter: 1}},function(err,result){
                     if(err)  throw err;
                     res.json(data);
                     //res.render('results',{dummy1,dummy1});
@@ -48,7 +48,7 @@ module.exports = function (app) {
     var urlencodedParser = bodyParser.urlencoded({extended:false});
     app.post('/search',urlencodedParser,function (req, res) {
         //find a substring containing the typed word in search bar
-        searchModel.find({_TITLE:{$regex: req.body._TITLE}} , function (error, data) {
+        searchModel.find({title:{$regex: req.body.title}} , function (error, data) {
             console.log(req.body);
             if (error) {
                 throw error;
