@@ -1,34 +1,123 @@
-package Indexer;
-import opennlp.tools.stemmer.PorterStemmer;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+
+
+        package Indexer;
+        //import Controller.Controller;
+        import com.mongodb.client.MongoCollection;
+        import com.mongodb.client.MongoDatabase;
+        import opennlp.tools.stemmer.PorterStemmer;
+        import com.google.gson.*;
+        import com.google.gson.reflect.TypeToken;
 // import org.jsoup.Connection;
 // import org.jsoup.Jsoup;
 // import org.jsoup.nodes.Document;
 // import org.jsoup.nodes.Element;
 //import java.lang.*;
+        import static com.mongodb.client.model.Filters.eq;
 
+        import com.mongodb.MongoException;
+      //  import org.bson.Document;
+        import com.mongodb.client.MongoClient;
+        import com.mongodb.client.MongoClients;
+        import com.mongodb.client.MongoCollection;
+        import com.mongodb.client.MongoDatabase;
+        import com.mongodb.client.result.InsertOneResult;
+        import org.bson.types.ObjectId;
+
+        import org.slf4j.LoggerFactory;
+        import ch.qos.logback.classic.Level;
+        import ch.qos.logback.classic.Logger;
 
 
 //import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+        import org.jsoup.Jsoup;
+        import org.jsoup.nodes.Document;
+        import org.jsoup.nodes.Element;
+        import org.jsoup.select.Elements;
 
 //import org.jsoup.Jsoup;
 //import org.jsoup.nodes.Document;
 //import org.jsoup.select.Elements;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.*;
-import java.util.Map.Entry;
+        import java.io.*;
+        import java.nio.file.Files;
+        import java.nio.file.Path;
+        import java.nio.file.Paths;
+        import java.util.*;
+        import java.util.stream.*;
+        import java.util.Map.Entry;
 
-public class Indexer{
+
+
+public class Indexer {
+   private static LinkedHashSet<String> allWords = new LinkedHashSet<String>();
+    private static LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
+    private static List<Document>docs=new ArrayList<Document>();
+ // private static  FileWriter writ;
+    public class syncho implements Runnable{
+       public void run()
+        {
+            Integer rem=allWords.size()%10;
+           Integer range=allWords.size()/10;
+            Integer start=Integer.parseInt(Thread.currentThread().getName())*range;
+            Integer end;
+if(Thread.currentThread().getName()=="9")
+           end=start+range+rem;
+else end=start+range;
+
+          int ew=0;
+            Iterator<String> itr = allWords.iterator();
+          while(itr.hasNext())
+          {
+              if(ew==start)
+                  break;
+              {
+                  ew++;
+                  itr.next();
+              }
+          }
+            while(ew<end)// ma3aya kelma
+            {
+                HashMap <String,pair>tempo = new HashMap<String, pair>();
+                //Integer k=0;
+                ew++;
+                String aword=itr.next();
+                System.out.println(ew);
+
+
+                for (int k=0;k<docs.size();k++)// le kol doc
+                {
+                    pair temppair = new pair();
+
+                    Elements selectResult=docs.get(k).getElementsContainingOwnText(aword);
+
+                    for (Element e : selectResult) {// kol el elements ely gowahom el
+                        temppair.count++;
+                        Elements parents = e.parents();
+                        for (Element h : parents)// each tag
+                        {
+                            setlocations(h.tagName(), temppair.location);// set all locations
+
+
+                        }
+
+                    }
+                    if(temppair.count!=0)
+                        tempo.put(CollectedData.get(k).url, temppair);
+
+
+                }
+                synchronized (this) {
+                    subindexermap.get(Integer.parseInt(Thread.currentThread().getName())).put(aword, tempo);
+
+                }
+
+
+            }
+        }
+    }
     private static List<Data> CollectedData = null;// areay of websirtes
     private static HashMap<String, HashMap<String, pair>> indexermap = new HashMap<String, HashMap<String, pair>>();
+    private static List<HashMap<String, HashMap<String, pair>>> subindexermap=new ArrayList<HashMap<String, HashMap<String, pair>>>();
     // word //url //occurrences
     private static List<String> stopwords = null;
 
@@ -52,10 +141,6 @@ public class Indexer{
 
             location=new BitSet(15);
             count = 0;
-            // location = new char[15];
-            //  location = 0;
-            // this.count = count;
-            // this.location = location;
         }
     }
 
@@ -176,50 +261,41 @@ public class Indexer{
             // create Gson instance
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             // create a reader
-            Reader reader = Files.newBufferedReader(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/data.json"));
+            Reader reader = Files.newBufferedReader(Paths.get("data.json"));
+
             CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {
             }.getType());// array of json objects websites
             reader.close();
             // array of stop words
-            stopwords = Files.readAllLines(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/stop_words_english.txt"));
+            stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
-            // intilaise alll words strings
-            LinkedHashSet<String> allWords = new LinkedHashSet<String>();
-            LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
-//nteger o=0;
-            for (Data w : CollectedData) {
-
-                allWords.addAll(Stream.of(Jsoup.parse(w.html).text().toLowerCase().split(" "))
+            FileWriter myfy=new FileWriter("tm2.txt");
+           // writ=new FileWriter("tm.txt");
+            for (int i = 0; i < CollectedData.size(); i++) {
+                docs.add(Jsoup.parse(CollectedData.get(i).html));
+             docs.get(i).select("script,.hidden,style,img,link,figure,pre,path,footer").remove();
+                myfy.write("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+myfy.write(docs.get(i).text()+System.lineSeparator());
+                allWords2.addAll(Stream.of(docs.get(i).text().replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
-//o++;
-//if(o==4)
-//    break;
-
             }
+
             PorterStemmer p = new PorterStemmer();
 
-            FileWriter writerr = new FileWriter("E:/Koleya/APT/proj/mywords.txt");
+            FileWriter writerr = new FileWriter("mywords.txt");
 
 
-            Iterator itery = allWords.iterator();
+            Iterator itery = allWords2.iterator();
 
-            while (itery.hasNext())
-            {
-
-                allWords2.add(itery.next().toString().replaceAll("[^a-zA-Z0-9_-]", "")) ;
-
-            }
 
             allWords2.removeAll(stopwords);// remove all blabla
 
 
             Iterator iter = allWords2.iterator();
-            allWords.clear();
-            //  int cou=0;
+
             while (iter.hasNext())
             {
-                allWords.add(p.stem(iter.next().toString().replaceAll("[^a-zA-Z0-9_-]", ""))) ;
-                // cou++;
+                allWords.add(p.stem(iter.next().toString())) ;
             }
             int z=0;
             for (String elemett:allWords)
@@ -231,78 +307,79 @@ public class Indexer{
             }
             ////////////////////////////////////////////
             writerr.close();
-            // h1 h2 h3 h4
-            // 0 0 0 0
-            // 1 0 0 0
 
-            // hero ->wikipidea->hero title
-            // hero footer
-            // hero body
-            // yahoo
-            // facebook
-            // vilian
-            //     FileWriter writerr = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/output.txt");
-            //    // Document doc = Jsoup.parse(CollectedData.get(0).html);
-            //     writerr.write(CollectedData.get(0).html.replaceAll("\\<.*?\\>", ""));
 
 
             int ew=0;
             allWords.remove("");
+for(int u=0;u<10;u++)
+{
+    HashMap<String,HashMap<String,pair>>map=new HashMap<String,HashMap<String,pair>>();
+    subindexermap.add(u,map);
+}
 
-            FileWriter writer2 = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
+Indexer indo=new Indexer();
+syncho ob=indo.new syncho();
+Thread t0=new Thread(ob);
+            Thread t1=new Thread(ob);Thread t2=new Thread(ob);Thread t3=new Thread(ob);Thread t4=new Thread(ob);Thread t5=new Thread(ob);Thread t6=new Thread(ob);Thread t7=new Thread(ob);Thread t8=new Thread(ob);Thread t9=new Thread(ob);
+            t0.setName("0");t1.setName("1");t2.setName("2");t3.setName("3");t4.setName("4");t5.setName("5");t6.setName("6");t7.setName("7"); t8.setName("8"); t9.setName("9");
+            t0.start();t1.start();t2.start();t3.start();t4.start();t5.start();t6.start();t7.start();   t8.start();   t9.start();
+            t0.join();t1.join();t2.join();t3.join();t4.join();t5.join();t6.join();t7.join();t8.join();t9.join();
+            System.out.println("HELLO");
+            System.out.println(indexermap.size());
+
+
+            for(int i=0;i<10;i++)
+            {
+                indexermap.putAll(subindexermap.get(i));
+            }
+
+            int y=7;
+
+//            String uri = "mongodb+srv://doaa:<password>@cluster0.zu6vd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+//            MongoClient mongo = MongoClients.create(uri);
+//            MongoDatabase database = mongo.getDatabase("myData");
+//            //get collection
+//            MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            FileWriter writer2 = new FileWriter("tm.txt");
 
             writer2.write("WORD       URL          count         locations\n");
-
-           List<Document>docs=new ArrayList<Document>();
-            for (Data w : CollectedData)// le kol doc
-            {
-
-            docs.add(Jsoup.parse(w.html));
-            }
-
-            for (String aword : allWords)// ma3aya kelma
-            {
-                // String aword="ukraine";
-                HashMap <String,pair>tempo = new HashMap<String, pair>();
-                //Integer k=0;
-                ew++;System.out.println(ew);
-                // indexermap.put(aword,tempo);//add my word
-                for (int k=0;k<docs.size();k++)// le kol doc
-                {
-
-                    pair temppair = new pair();
-
-
-                    // int counter = 0;
-
-                    for (Element e : docs.get(k).select("*:containsOwn(" + aword + ")")) {// kol el elements ely gowahom el
-                        // kelma dyh
-                        // indexermap.get(aword).get(w.url).count++;//increment occurence
-                        temppair.count++;
-                        for (Element h : e.parents())// each tag
-                        {
-                            // System.out.println(h.tagName());
-                            setlocations(h.tagName(), temppair.location);// set all locations
-
-
-                        }
-
-                    }
-if(temppair.count!=0)
-                    tempo.put(CollectedData.get(k).url, temppair);
-                }
-
-                indexermap.put(aword, tempo);
-
-            }
-            // HashMap te=new HashMap<String,char[]>();
-            // te.put("mimi",'y');
-            // indexermap.put("hello",te);
-int y=7;
-            //   FileWriter writer = new FileWriter("E:/Koleya/APT/proj/SearchEngine/Engine/tm.txt");
-
-writer2.write("WORD       URL          count         locations\n");
-               Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
+            Iterator<Entry<String, HashMap<String, pair>>> it = indexermap.entrySet().iterator();
 
             while (it.hasNext()) {
                 // System.out.println("nono");
@@ -311,10 +388,10 @@ writer2.write("WORD       URL          count         locations\n");
                 Iterator<Entry<String, pair>> itt = entry.getValue().entrySet().iterator();
                 while (itt.hasNext()) {
                     Entry<String, pair> en2 = itt.next();
-                   String kk= IntStream.range(0, en2.getValue().location.length())
+                    String kk= IntStream.range(0, en2.getValue().location.length())
                             .mapToObj(b -> String.valueOf(en2.getValue().location.get(b) ? 1 : 0))
                             .collect(Collectors.joining());
-                   writer2.write(en2.getKey()+" ------> ");
+                    writer2.write(en2.getKey()+" ------> ");
                     writer2.write(en2.getValue().count.toString()+" ---------> "+kk+System.lineSeparator());
 
 
