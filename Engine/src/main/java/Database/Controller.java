@@ -16,11 +16,14 @@ import Indexer.Indexer.pair;
   import java.util.ArrayList;
   import java.util.List;
   import java.util.Map;
+  import java.util.BitSet;
  import org.slf4j.LoggerFactory;
  import ch.qos.logback.classic.Level;
  import ch.qos.logback.classic.Logger;
 
   import java.util.HashMap;
+  import java.util.stream.Collectors;
+  import java.util.stream.IntStream;
 
   public class Controller {
      //------to reduce console log-----
@@ -31,9 +34,16 @@ import Indexer.Indexer.pair;
          root.setLevel(Level.INFO);
      }
      //------------------------------------
+     public static long convert(BitSet bits) {
+         long value = 0L;
+         for (int i = 0; i < bits.length(); ++i) {
+             value += bits.get(i) ? (1L << i) : 0L;
+         }
+         return value;
+     }
      public static void indexerone(HashMap<String,HashMap<String,pair>>mymap)
      {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
-            String uri = "mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority";
+            String uri = "mongodb://localhost:27017/SearchEngine";
             MongoClient mongo = MongoClients.create(uri);
             MongoDatabase database = mongo.getDatabase("myData");
             //get collection
@@ -46,13 +56,14 @@ import Indexer.Indexer.pair;
              doc.append("Word",entry.getKey());
             // System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
            //  Document subdoc=new Document();
-             BasicDBObject obj = new BasicDBObject();
              List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
              for(Map.Entry<String,pair>subentry:entry.getValue().entrySet())
                {
-               obj.append("URL",subentry.getKey());
-               obj.append("Count",subentry.getValue().count);
-               //subdoc.append("locations",subentry.getValue().location);
+                   BasicDBObject obj = new BasicDBObject();
+                   obj.append("URL",subentry.getKey());
+                   obj.append("Count",subentry.getValue().count);
+                   long pos = convert(subentry.getValue().location);
+                   obj.append("locations",pos);
                    lis.add(obj);
                }
             doc.append("Websites",lis);
