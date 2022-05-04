@@ -28,18 +28,21 @@ class CrawlerRunnable implements Runnable{
 }
 public class Crawler{
     //Maximum number of total visited pages, 5000 in this project
-    private static final int MAX_PAGES = 200;
+    private static final int MAX_PAGES = 500;
     //number of threads used
     private static int NUM_THREADS = 8;
     //list of visited links to not visit a link again
     private static ArrayList<String> UrlsInQueue = new ArrayList<String>();
     //list of robot.txt links to not visit these links
-    private static ArrayList<String> RobotLinks = new ArrayList<String>();
+    private static List<String> RobotLinks = new ArrayList<String>();
     //list of urls existing in queue
     private static List<URLQueue> URLs = null;
+    //List of data from data.json file
     private static List<Data> CollectedData = null;
+    //list of normalized urs from queue.json file
     private static List<String> normalizedUrls = new ArrayList<>();
-
+    //writer to robot.txt file
+    static PrintWriter robotWriter;
 
     static Gson gson = null;
 
@@ -87,6 +90,7 @@ public class Crawler{
 //            System.out.println("Thread: "+ Integer.parseInt(Thread.currentThread().getName()));
                 URLQueue URLObj = URLs.get(i);
                 //System.out.println(URLObj.url);
+                //if the link is not visited before, visit it (get its html content)
                 if (!URLObj.visited) {
 //                System.out.println("not visited");
                     String url = URLObj.url;
@@ -94,26 +98,31 @@ public class Crawler{
                     if (doc != null) {
                         //normalize url
                         String n = NormalizeUrl(doc);
+                        //check if the normalization existed before, scam
                         if (!normalizedUrls.contains(n)){
                             normalizedUrls.add(n);
-
                             //-----INSERT DATA TO FILE----
                             URLObj.visited = true;
                             //System.out.println(n);
                             URLObj.normalization = n;
-                            URLs.set(i, URLObj);
+                            //set the site to visited
+                            synchronized (URLs){
+                                URLs.set(i, URLObj);
+                            }
                             Data data = new Data(url, doc.html());
-    //                        synchronized (gson){
-                                UpdateQueueFile(gson);
-                                WriteToDataFile(data,gson);
+                            //update queue file to update the visited status in file
+                            UpdateQueueFile();
+                            //update data file to add new html
+                            WriteToDataFile(data);
                             crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
                         }
                         else{
-                            //remove from queue
-                            URLs.remove(URLObj);
-                            UpdateQueueFile(gson);
+//                          //if the normalization existed before, remove site from queue to not visit it again
+                            synchronized (URLs){
+                                URLs.remove(URLObj);
+                            }
+                            UpdateQueueFile();
                         }
-//                        }
                     }
                 }
             }
@@ -123,54 +132,60 @@ public class Crawler{
         if (doc != null)
         {
             StringBuilder result = new StringBuilder();
-            String[] textArray = doc.text().split(" ");
-            for(String word : textArray){
-                result.append(word.toLowerCase().charAt(0));
-            }
-            return result.toString().replaceAll("[^a-zA-Z0-9_-]", "");
+            String[] textArray = doc.body().text().split(" ");
+                for(String word : textArray){
+                    try {
+                        result.append(word.toLowerCase().charAt(0));
+                    }catch (StringIndexOutOfBoundsException e){
+
+                    }
+                }
+            return result.toString().replaceAll("[^a-zA-Z]", "");
         }
         return "";
     }
-    private ArrayList<String> GetRobotFileLinks(String link)
+    private void GetRobotFileLinks(String link)
     {
         if (link.charAt(link.length()-1) != '/')
         {
             link += "/";
         }
-        ArrayList<String> robotlinks = null;
         try(BufferedReader in = new BufferedReader(
                 new InputStreamReader(new URL(link + "robots.txt").openStream()))) {
-            robotlinks = new ArrayList<String>();
             String line = null;
             while((line = in.readLine()) != null) {
                 String dis = line.substring(0, Math.min(line.length(), 11));
                 if (dis.equals("Disallow: /")){
-                    //System.out.println(line);
-                    String d = link+line.substring(10,line.length()) ;
-                    robotlinks.add(d);
+                    System.out.println(line);
+                    String d = link+line.substring(11,line.length()) ;
+//                    System.out.println(d);
+                    synchronized (RobotLinks){
+                        robotWriter.println(d);
+                        robotWriter.flush();
+                        RobotLinks.add(d);
+                    }
                 }
 
             }
         } catch (IOException e) {
             //e.printStackTrace();
         }
-        return robotlinks;
     }
 
     private void crawl(int level , Document doc,String url){
         if(doc != null)
         {
-            //ArrayList<String> temp = GetRobotFileLinks(url);
-            //if(temp != null) RobotLinks.addAll(temp);
+            GetRobotFileLinks(url);
+//            if(temp != null) RobotLinks.addAll(temp);
 
             //-------GET OTHER LINKS------
             for(Element link :  doc.select("a[href]")){
                 String next_link = link.absUrl("href");
 
-                if(UrlsInQueue.contains(next_link) == false && URLs.size() < MAX_PAGES){
+                if(UrlsInQueue.contains(next_link) == false && RobotLinks.contains(next_link) == false && URLs.size() < MAX_PAGES){
                     System.out.println("Thread: "+ level);
                     URLQueue nxtLink = new URLQueue(next_link, false, level, "");
-                    WriteToQueueFile(nxtLink, gson);
+                    WriteToQueueFile(nxtLink);
                     UrlsInQueue.add(next_link);
                     synchronized (this){
                         System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
@@ -190,7 +205,7 @@ public class Crawler{
                 return doc;
             }
             return null;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -209,6 +224,7 @@ public class Crawler{
             // convert JSON array to list of users
             URLs = gson.fromJson(queueReader, new TypeToken<List<URLQueue>>(){}.getType());
             CollectedData = gson.fromJson(dataReader, new TypeToken<List<Data>>(){}.getType());
+            RobotLinks = Files.readAllLines(Paths.get("robot.txt"));
             if (CollectedData == null) {
                 System.out.println("data NULL");
             }
@@ -220,12 +236,12 @@ public class Crawler{
 //                System.out.println(URLs.size());
             if (URLs == null) {
                 System.out.println("queue NULL");
-                URLQueue link1= crawlerObj.new URLQueue("http://www.risemysticct.com/", false, -1, "");
-                URLQueue link2= crawlerObj.new URLQueue("https://www.nytimes.com/", false, -1, "");
-                URLQueue link3= crawlerObj.new URLQueue("https://www.wikipedia.org/", false, -1, "");
-                WriteToQueueFile(link1, gson);
-                WriteToQueueFile(link2, gson);
-                WriteToQueueFile(link3, gson);
+                URLQueue link1= crawlerObj.new URLQueue("https://myanimelist.net/anime/22319/Tokyo_Ghoul/", false, -1, "");
+                URLQueue link2= crawlerObj.new URLQueue("http://www.bbc.com/future/", false, -1, "");
+                URLQueue link3= crawlerObj.new URLQueue("https://www.tabnine.com/", false, -1, "");
+                WriteToQueueFile(link1);
+                WriteToQueueFile(link2);
+                WriteToQueueFile(link3);
             }
             //--FILE IS NOT EMPTY, THEN CONTINUE FROM LAST STATE
             else {
@@ -252,6 +268,19 @@ public class Crawler{
             ex.printStackTrace();
         }
 
+        FileWriter fw = null;
+        BufferedWriter bw = null;
+        try
+        {
+            fw = new FileWriter("robot.txt", true);
+            bw = new BufferedWriter(fw);
+            robotWriter = new PrintWriter(bw);
+        } catch (IOException e) {
+            //exception handling left as an exercise for the reader
+        }
+
+
+
         Thread[] threads = new Thread[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++) {
             threads[i] = new Thread(new CrawlerRunnable(crawlerObj));
@@ -267,7 +296,7 @@ public class Crawler{
         }
 
     }
-    private static void WriteToQueueFile(URLQueue obj,Gson gson){
+    private static void WriteToQueueFile(URLQueue obj){
         synchronized (gson) {
             if (URLs == null){
                 URLs = new ArrayList<URLQueue>();
@@ -284,7 +313,7 @@ public class Crawler{
             }
         }
     }
-    private static void UpdateQueueFile( Gson gson){
+    private static void UpdateQueueFile(){
         synchronized (gson) {
             if (URLs == null){
                 URLs = new ArrayList<URLQueue>();
@@ -300,7 +329,7 @@ public class Crawler{
             }
         }
     }
-    private static void WriteToDataFile(Data obj, Gson gson){
+    private static void WriteToDataFile(Data obj){
         synchronized (gson) {
             if (CollectedData == null){
                 CollectedData = new ArrayList<Data>();
