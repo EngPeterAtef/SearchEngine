@@ -52,59 +52,12 @@
                                     <a href="<%=blog.url%>"><%=blog.title%></a>
                                 </h3>
                                 <p class="in-sum">
-                                    <%=blog.snippet%>
+                                    <%=blog.snippet.replace(word,"<strong>" + word + "</strong>")%>... 
                                 </p>
                             </div>
                             <%});%>
 
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
-                            <div class="cont">
-                                <h3 class="in-tit">
-                                    <a href="#">Link</a>
-                                </h3>
-                                <p class="in-sum">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi iusto maiores impedit inventore autem architecto id error adipisci. Sunt quae voluptatibus velit veritatis consequuntur aliquid, aperiam mollitia at fugiat accusamus.
-                                </p>
-                            </div>
+                            
             </div>
             <div class="btns">
                 <% for(let i=1;i<=btnnumbs;i++){%>

@@ -114,4 +114,5 @@ body {
 .in-tit,
 .in-sum {
   color: blanchedalmond;
+  overflow-wrap: break-word;
 }

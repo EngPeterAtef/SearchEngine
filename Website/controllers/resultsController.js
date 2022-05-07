@@ -6,6 +6,10 @@ let results = require('../models/resultsModel');
 let indexer = require('../models/indexerModel');
 const { db } = require('../models/resultsModel');
 let getTitleAtUrl = require('get-title-at-url');
+const cheerio =  require('cheerio');
+//parser
+// import { parse } from 'node-html-parser';
+//var htmlParser = require('html-parser');
 
 
 let minib=[];
@@ -14,10 +18,10 @@ let btnnumbs;
 let Allresult = [];
 let query = '';
 function compare(a, b){
-    if ( a.occurance < b.occurance ){
+    if ( a.tf_idf < b.tf_idf ){
       return 1;
     }
-    if ( a.occurance > b.occurance ){
+    if ( a.tf_idf > b.tf_idf ){
       return -1;
     }
     return 0;
@@ -37,19 +41,40 @@ module.exports = function (app) {
                 throw error;
             }
             if(data !== null){
-                data[0].list.sort(compare);
             }
+            var start = new Date();
+
+            let fs = require('fs');
+            let crawlerData = JSON.parse(fs.readFileSync('../Engine/data.json', 'utf8'));
+            let queuedata = JSON.parse(fs.readFileSync('../Engine/queue.json', 'utf8'));
+            let IDF = Math.log(5000/data[0].list.length);
+            let TF = 0;
+            let TF_IDF =0;
+            
             for (let index = 0; index < data[0].list.length; index++) {
-                getTitleAtUrl(data[0].list[index].url, function(title){
-                    console.log(title);
-                    console.log(data[0].list[index].url);
-                    Allresult.push({"url": data[0].list[index].url, "title": title, "snippet":"loremereorververvetg"});
-                });
+                //const $ = cheerio.load(markup);
+                let result = crawlerData.find(obj => obj.url === data[0].list[index].url);
+                let str = result.html.replace(/<head.*>.*<\/head>|<script.*>.*<\/script>/ims, ' ').replace(/<[^>]*>/g, ' ').replace(/[^a-zA-Z ]/g, "");
+                let indexOFquery = str.search(query);
+                data[0].list[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 200,str.length));
+                TF =  data[0].list[index].occurance / str.length;
+                //console.log(str.length +'\n');
+                TF_IDF = TF * IDF ;
+                data[0].list[index].tf_idf = TF_IDF;
+                
+            }
+            data[0].list.sort(compare);
+            for (let index = 0; index < data[0].list.length; index++) {
+                Allresult.push({"url": data[0].list[index].url, "title": data[0].list[index].title, "snippet":data[0].list[index].snippet});
             }
             btnnumbs = Math.ceil(Allresult.length/5);
             let x =0;
             minib =[];
             res.redirect('http://localhost:3000/results/'+query+'/1');
+
+            var end = new Date() - start;
+            //let time = console.timeEnd('Execution Time');
+            console.log("Found "+data[0].list.length+" results "+end + " ms");
         //---------------------------------
         //---------------------------------
         });
@@ -75,7 +100,7 @@ module.exports = function (app) {
     });
     
     app.get("/results/:item/:i",(req,res) => {
-        console.log(Allresult);
+        //console.log(Allresult);
         var starting = (parseInt(req.params.i)-1)*5;
         let k=0;
         minib =[];
