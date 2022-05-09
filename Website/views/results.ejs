@@ -41,9 +41,9 @@
         </nav>
 
 
+        <span  id="TakenTime">About <%=minib.length %> results ( <%= endtime/1000.0 %> seconds )</span>
         <div class="content">
             <div class="results">
-                
                 <h1 class="res_tit">Results</h2>
                     <div class="link-card"></div>
                         <%minib.forEach(blog=>{%>
@@ -52,7 +52,7 @@
                                     <a href="<%=blog.url%>"><%=blog.title%></a>
                                 </h3>
                                 <p class="in-sum">
-                                    <%=blog.snippet.replace(word,"<strong>" + word + "</strong>")%>... 
+                                    <%=blog.snippet %>... 
                                 </p>
                             </div>
                             <%});%>

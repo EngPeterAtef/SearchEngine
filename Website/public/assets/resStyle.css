@@ -18,7 +18,7 @@ body{
     display: flex;
     padding-left: 20px;
     align-items: center;
-    padding-bottom: 20px;
+    padding-bottom: 5px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -162,4 +162,11 @@ color:#000000d5;
 }
 .btns a{
   margin-left: 5px;
+}
+
+#TakenTime{
+  margin-left: 240px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color:#909090;
 }
