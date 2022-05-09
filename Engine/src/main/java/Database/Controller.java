@@ -1,7 +1,9 @@
 package Database;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -61,15 +63,29 @@ public class Controller {
     //----------ADD SITE BODY TO DB-----------
     public void AddSiteToDB(String url, String title,String body){
         //get collection
-        MongoCollection<Document> collection = database.getCollection("snippets");
-        //insert example
+        MongoCollection<Document> collection = database.getCollection("WebsiteData");
+        //insert
         try {
             InsertOneResult result = collection.insertOne(new Document()
                     .append("_id", new ObjectId())
                     .append("url", url)
                     .append("title", title)
+                    .append("popularity", 1)
                     .append("body", body));
 //            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+        } catch (MongoException me) {
+            System.err.println("Unable to insert due to an error: " + me);
+        }
+    }
+    public void IncrementPopularity(String url){
+        //get collection
+        MongoCollection<Document> collection = database.getCollection("WebsiteData");
+        //update
+        try {
+            Document query = new Document().append("url",  url);
+            BasicDBObject incValue = new BasicDBObject("popularity", 1);
+            BasicDBObject intModifier = new BasicDBObject("$inc", incValue);
+            collection.updateOne(query, intModifier);
         } catch (MongoException me) {
             System.err.println("Unable to insert due to an error: " + me);
         }

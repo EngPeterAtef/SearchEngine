@@ -58,14 +58,11 @@ public class Crawler{
         public boolean visited;
         public int threadID;
         public String normalization;
-        public int popularity;
-        URLQueue(String url, boolean visited, int threadID, String normalization, int popularity){
+        URLQueue(String url, boolean visited, int threadID, String normalization){
             this.url = url;
             this.visited = visited;
             this.threadID = threadID;
             this.normalization = normalization;
-            this.popularity = popularity;
-
         }
     }
     //class to specify the structure of HTML (Collected data) JSON objects
@@ -192,7 +189,7 @@ public class Crawler{
 
                 if(UrlsInQueue.contains(next_link) == false && RobotLinks.contains(next_link) == false && URLs.size() < MAX_PAGES){
                     System.out.println("Thread: "+ level);
-                    URLQueue nxtLink = new URLQueue(next_link, false, level, "", 1);
+                    URLQueue nxtLink = new URLQueue(next_link, false, level, "");
                     WriteToQueueFile(nxtLink);
                     UrlsInQueue.add(next_link);
                     synchronized (this){
@@ -201,13 +198,7 @@ public class Crawler{
                     }
                 }
                 else if (UrlsInQueue.contains(next_link) && URLs.size() < MAX_PAGES){
-                    for (URLQueue Queueobject : URLs) {
-                        if (next_link.equals(Queueobject.url))
-                        {
-                            Queueobject.popularity++;
-                            UpdateQueueFile();
-                        }
-                    }
+                    DBControllerObj.IncrementPopularity(next_link);
                 }
             }
         }
@@ -254,9 +245,9 @@ public class Crawler{
 //                System.out.println(URLs.size());
             if (URLs == null) {
                 System.out.println("queue NULL");
-                URLQueue link1= crawlerObj.new URLQueue("https://myanimelist.net/anime/22319/Tokyo_Ghoul/", false, -1, "",0);
-                URLQueue link2= crawlerObj.new URLQueue("http://www.bbc.com/future/", false, -1, "",0);
-                URLQueue link3= crawlerObj.new URLQueue("https://www.tabnine.com/", false, -1, "",0);
+                URLQueue link1= crawlerObj.new URLQueue("https://myanimelist.net/anime/22319/Tokyo_Ghoul/", false, -1, "");
+                URLQueue link2= crawlerObj.new URLQueue("http://www.bbc.com/future/", false, -1, "");
+                URLQueue link3= crawlerObj.new URLQueue("https://www.tabnine.com/", false, -1, "");
                 WriteToQueueFile(link1);
                 WriteToQueueFile(link2);
                 WriteToQueueFile(link3);
