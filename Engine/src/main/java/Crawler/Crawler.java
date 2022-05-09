@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
+import Database.Controller;
 
 class CrawlerRunnable implements Runnable{
     Crawler crawler;
@@ -49,6 +49,8 @@ public class Crawler{
     // create a reader
     static Reader queueReader = null;
     static Reader dataReader = null;
+    //database controller
+    Controller DBControllerObj;
 
     //class to specify the structure of QUEUE JSON objects
     private class URLQueue{
@@ -69,9 +71,11 @@ public class Crawler{
     //class to specify the structure of HTML (Collected data) JSON objects
     private class Data{
         public String url;
+        public boolean visited;
         public String html;
-        Data(String url, String html){
+        Data(String url, boolean visited, String html){
             this.url = url;
+            this.visited = visited;
             this.html = html;
         }
     }
@@ -112,11 +116,12 @@ public class Crawler{
                             synchronized (URLs){
                                 URLs.set(i, URLObj);
                             }
-                            Data data = new Data(url, doc.html());
+                            Data data = new Data(url, false, doc.html());
                             //update queue file to update the visited status in file
                             UpdateQueueFile();
                             //update data file to add new html
                             WriteToDataFile(data);
+                            DBControllerObj.AddSiteToDB(url, doc.title(), doc.body().text());
                             crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
                         }
                         else{
@@ -225,6 +230,7 @@ public class Crawler{
     public static void main(String[] arg)
     {
         Crawler crawlerObj = new Crawler();
+        crawlerObj.DBControllerObj = new Controller();
         try {
             // create Gson instance
             gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();

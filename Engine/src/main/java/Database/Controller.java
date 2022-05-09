@@ -15,6 +15,16 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class Controller {
+    String uri;
+    MongoClient mongoClient;
+    MongoDatabase database;
+    public Controller(){
+        uri = "mongodb://localhost:27017";
+        mongoClient = MongoClients.create(uri);
+        //connect to db
+        database = mongoClient.getDatabase("SearchEngine");
+        //get collection
+    }
     //------to reduce console log-----
     static Logger root = (Logger) LoggerFactory
             .getLogger(Logger.ROOT_LOGGER_NAME);
@@ -46,6 +56,22 @@ public class Controller {
             //find example
             Document doc = collection.find(eq("item", "buy eggs")).first();
 //            System.out.println(doc.toJson());
+        }
+    }
+    //----------ADD SITE BODY TO DB-----------
+    public void AddSiteToDB(String url, String title,String body){
+        //get collection
+        MongoCollection<Document> collection = database.getCollection("snippets");
+        //insert example
+        try {
+            InsertOneResult result = collection.insertOne(new Document()
+                    .append("_id", new ObjectId())
+                    .append("url", url)
+                    .append("title", title)
+                    .append("body", body));
+//            System.out.println("Success! Inserted document id: " + result.getInsertedId());
+        } catch (MongoException me) {
+            System.err.println("Unable to insert due to an error: " + me);
         }
     }
 }
