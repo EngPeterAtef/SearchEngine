@@ -100,7 +100,7 @@ color:#000000d5;
   }
 
   .in-tit{
-      margin-top:10px;
+      margin-top:5px;
       margin-left:10px;
       font-size: 24px;
       
@@ -169,4 +169,14 @@ color:#000000d5;
   margin-bottom: 10px;
   font-size: 14px;
   color:#909090;
+}
+#boldedWord{
+  color:#a0a0a0 ;
+  font-weight: bolder;
+}
+#resLink{
+  margin-left: 14px;
+  margin-top: 7px;
+  color: #bcbcbc;
+  font-size: 14px;
 }

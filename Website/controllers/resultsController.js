@@ -29,6 +29,7 @@ function compare(a, b){
 };
 var stemmer = require('porter-stemmer').stemmer;
 var endtime=0;
+var dataFound=0;
 module.exports = function (app) {
     //to open results page
     app.get('/results/:item', function (req, res) {
@@ -69,8 +70,6 @@ module.exports = function (app) {
                     TF =  data[0].list[index].occurance / str.length;
                     //console.log(str.length +'\n');
                     TF_IDF = TF * IDF ;
-                    data[0].list[index].tf_idf = TF_IDF;
-
                 });
             }
             setTimeout(function () {
@@ -87,32 +86,11 @@ module.exports = function (app) {
             
 
             endtime = new Date() - start;
-            
-            //let time = console.timeEnd('Execution Time');
             console.log("Found "+data[0].list.length+" results "+endtime + " ms");
-            //data[0].t = end;
-            data[0].length = data[0].list.length;
+            dataFound = data[0].list.length;
         //---------------------------------
         //---------------------------------
         });
-
-        // results.find({title:{$regex:query} }, function (error, data){
-        //     if (error) {
-        //         throw error;
-        //     }
-        //     Allresult = data;
-        //     btnnumbs = Math.ceil(data.length/5);
-        //     let x =0;
-        //     minib =[];
-        //     // for(let j=0;j<Math.min(5,arr.length);j++)
-        //     // {
-        //     //     minib[x]=arr[j];
-        //     //     x++;
-        //     // }
-        //     // res.render('results',{minib,btnnumbs,word});
-
-        //     res.redirect('http://localhost:3000/results/'+query+'/1');
-        // });
         
     });
     
@@ -126,6 +104,6 @@ module.exports = function (app) {
             minib[k] = Allresult[j];
             k++;
         }
-        res.render('results',{minib,btnnumbs,endtime,word: query});
+        res.render('results',{minib,btnnumbs,dataFound,endtime,word: query});
     });
 };

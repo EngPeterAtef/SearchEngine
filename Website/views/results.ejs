@@ -41,19 +41,18 @@
         </nav>
 
 
-        <span  id="TakenTime">About <%=minib.length %> results ( <%= endtime/1000.0 %> seconds )</span>
+        <span  id="TakenTime">About <%=dataFound %> results ( <%= endtime/1000.0 %> seconds )</span>
         <div class="content">
             <div class="results">
                 <h1 class="res_tit">Results</h2>
                     <div class="link-card"></div>
                         <%minib.forEach(blog=>{%>
                             <div class="cont">
+                                <span id="resLink"><%=blog.url%></span>
                                 <h3 class="in-tit">
                                     <a href="<%=blog.url%>"><%=blog.title%></a>
                                 </h3>
-                                <p class="in-sum">
-                                    <%=blog.snippet %>... 
-                                </p>
+                                <p class="in-sum"><%=blog.snippet.toLowerCase().replace(word,"<span id=\"boldedWord\">" + word + "</span>") %>... </p>
                             </div>
                             <%});%>
 
@@ -66,6 +65,7 @@
             </div>
         </div>
     </div>
+    <script src="/assets/results.js"></script>
     <script src="/assets/search.js"></script>
 </body>
 </html>
