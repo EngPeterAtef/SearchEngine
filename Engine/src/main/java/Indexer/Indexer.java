@@ -48,6 +48,11 @@ public class Indexer {
     private static List<Document>docs=new ArrayList<Document>();
  // private static  FileWriter writ;
     public class syncho implements Runnable{
+        //lock  = calling object => which is the thread
+        private Indexer x;
+        public syncho(Indexer y){
+            x = y;
+        }
        public void run()
         {
             Integer rem=allWords.size()%10;
@@ -100,9 +105,9 @@ else end=start+range;
 
 
                 }
-                synchronized (this) {
-                    subindexermap.get(Integer.parseInt(Thread.currentThread().getName())).put(aword, tempo);
-
+                synchronized (this.x) {
+                   // subindexermap.get(Integer.parseInt(Thread.currentThread().getName())).put(aword, tempo);
+                    indexermap.put(aword,tempo);
                 }
 
 
@@ -267,12 +272,15 @@ else end=start+range;
             FileWriter myfy=new FileWriter("tm2.txt");
            // writ=new FileWriter("tm.txt");
             for (int i = 0; i < CollectedData.size(); i++) {
+                if(CollectedData.get(i).visited==true)
+                    continue;
                 docs.add(Jsoup.parse(CollectedData.get(i).html));
              docs.get(i).select("script,.hidden,style,img,link,figure,pre,path,footer").remove();
                 myfy.write("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 myfy.write(docs.get(i).text()+System.lineSeparator());
                 allWords2.addAll(Stream.of(docs.get(i).text().replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
+CollectedData.get(i).visited=true;
             }
 
             PorterStemmer p = new PorterStemmer();
@@ -307,14 +315,14 @@ myfy.write(docs.get(i).text()+System.lineSeparator());
 
             int ew=0;
             allWords.remove("");
-for(int u=0;u<10;u++)
-{
-    HashMap<String,HashMap<String,pair>>map=new HashMap<String,HashMap<String,pair>>();
-    subindexermap.add(u,map);
-}
+//for(int u=0;u<10;u++)
+//{
+//    HashMap<String,HashMap<String,pair>>map=new HashMap<String,HashMap<String,pair>>();
+//    subindexermap.add(u,map);
+//}
 
 Indexer indo=new Indexer();
-syncho ob=indo.new syncho();
+syncho ob=indo.new syncho(indo);
 Thread t0=new Thread(ob);
             Thread t1=new Thread(ob);Thread t2=new Thread(ob);Thread t3=new Thread(ob);Thread t4=new Thread(ob);Thread t5=new Thread(ob);Thread t6=new Thread(ob);Thread t7=new Thread(ob);Thread t8=new Thread(ob);Thread t9=new Thread(ob);
             t0.setName("0");t1.setName("1");t2.setName("2");t3.setName("3");t4.setName("4");t5.setName("5");t6.setName("6");t7.setName("7"); t8.setName("8"); t9.setName("9");
@@ -324,10 +332,10 @@ Thread t0=new Thread(ob);
             System.out.println(indexermap.size());
 
 
-            for(int i=0;i<10;i++)
-            {
-                indexermap.putAll(subindexermap.get(i));
-            }
+//            for(int i=0;i<10;i++)
+//            {
+//                indexermap.putAll(subindexermap.get(i));
+//            }
 
 
 Controller.indexerone(indexermap);
