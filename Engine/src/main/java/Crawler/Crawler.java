@@ -134,7 +134,7 @@ public class Crawler{
                             //update data file to add new html
 //                            WriteToDataFile(data);
                             DBControllerObj.AddToCollectedData(data);
-//                            DBControllerObj.AddSiteData(url, doc.title(), doc.body().text());
+                            DBControllerObj.AddSiteData(url, doc.title(), doc.body().text());
                             crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
                         }
                         else{
@@ -296,8 +296,8 @@ public class Crawler{
             if (URLs == null) {
                 System.out.println("queue NULL");
                 URLQueue link1= new URLQueue("https://en.wikipedia.org/wiki/The_Batman_(film)", false, -1, "");
-                URLQueue link2= new URLQueue("http://www.bbc.com/future/", false, -1, "");
-                URLQueue link3= new URLQueue("https://www.nytimes.com/international/", false, -1, "");
+                URLQueue link2= new URLQueue("https://www.bbc.com", false, -1, "");
+                URLQueue link3= new URLQueue("https://www.facebook.com/", false, -1, "");
 //                WriteToQueueFile(link1);
 //                WriteToQueueFile(link2);
 //                WriteToQueueFile(link3);
