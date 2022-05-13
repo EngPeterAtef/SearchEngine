@@ -203,7 +203,7 @@ public class Indexer {
             //-----------------------------------------
             //------TO READ DATA FROM DATABASE---------
             //-----------------------------------------
-//            Controller DBControllerObj =  new Controller(false);
+//            Controller DBControllerObj =  new Controller(true);
 //            CollectedData = DBControllerObj.GetCollectedData();
             //-----------------------------------------
             CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {
