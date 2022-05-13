@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 //FROM CONTROLLER
 import Database.Controller;
 import Database.Controller.Data;
@@ -32,7 +33,7 @@ public class Crawler{
     //Maximum number of total visited pages, 5000 in this project
     private static final int MAX_PAGES = 500;
     //number of threads used
-    private static int NUM_THREADS = 8;
+    private static int NUM_THREADS;
     //list of visited links to not visit a link again
     private static ArrayList<String> UrlsInQueue = new ArrayList<>();
     //list of robot.txt links to not visit these links
@@ -271,6 +272,7 @@ public class Crawler{
 //            URLs = gson.fromJson(queueReader, new TypeToken<List<URLQueue>>(){}.getType());
             CollectedData = crawlerObj.DBControllerObj.GetCollectedData();
 //            CollectedData = gson.fromJson(dataReader, new TypeToken<List<Data>>(){}.getType());
+            //READ ROBOT.TXT FILE
             RobotLinks = Files.readAllLines(Paths.get("robot.txt"));
             if (CollectedData == null) {
                 CollectedData = new ArrayList<>();
@@ -320,7 +322,7 @@ public class Crawler{
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
+        //ROBOT.TXT WRITER
         FileWriter fw = null;
         BufferedWriter bw = null;
         try
@@ -331,7 +333,9 @@ public class Crawler{
         } catch (IOException e) {
             //exception handling left as an exercise for the reader
         }
-
+        Scanner scanner = new Scanner(System.in);
+        NUM_THREADS = scanner.nextInt();
+        scanner.close();
 
         Thread[] threads = new Thread[NUM_THREADS];
         for (int i = 0; i < NUM_THREADS; i++) {
@@ -348,54 +352,54 @@ public class Crawler{
         }
 
     }
-    private static void WriteToQueueFile(URLQueue obj){
-        synchronized (gson) {
-            if (URLs == null){
-                URLs = new ArrayList<URLQueue>();
-            }
-    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-            Writer writer = null;
-            try {
-                writer = Files.newBufferedWriter(Paths.get("queue.json"));
-                URLs.add(obj);
-                gson.toJson(URLs, writer);
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    private static void UpdateQueueFile(){
-        synchronized (gson) {
-            if (URLs == null){
-                URLs = new ArrayList<URLQueue>();
-            }
-    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-            Writer writer = null;
-            try {
-                writer = Files.newBufferedWriter(Paths.get("queue.json"));
-                gson.toJson(URLs, writer);
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    private static void WriteToDataFile(Data obj){
-        synchronized (gson) {
-            if (CollectedData == null){
-                CollectedData = new ArrayList<Data>();
-            }
-    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-            Writer writer = null;
-            try {
-                writer = Files.newBufferedWriter(Paths.get("data.json"));
-                CollectedData.add(obj);
-                gson.toJson(CollectedData, writer);
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private static void WriteToQueueFile(URLQueue obj){
+//        synchronized (gson) {
+//            if (URLs == null){
+//                URLs = new ArrayList<URLQueue>();
+//            }
+//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+//            Writer writer = null;
+//            try {
+//                writer = Files.newBufferedWriter(Paths.get("queue.json"));
+//                URLs.add(obj);
+//                gson.toJson(URLs, writer);
+//                writer.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//    private static void UpdateQueueFile(){
+//        synchronized (gson) {
+//            if (URLs == null){
+//                URLs = new ArrayList<URLQueue>();
+//            }
+//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+//            Writer writer = null;
+//            try {
+//                writer = Files.newBufferedWriter(Paths.get("queue.json"));
+//                gson.toJson(URLs, writer);
+//                writer.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//    private static void WriteToDataFile(Data obj){
+//        synchronized (gson) {
+//            if (CollectedData == null){
+//                CollectedData = new ArrayList<Data>();
+//            }
+//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+//            Writer writer = null;
+//            try {
+//                writer = Files.newBufferedWriter(Paths.get("data.json"));
+//                CollectedData.add(obj);
+//                gson.toJson(CollectedData, writer);
+//                writer.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }
