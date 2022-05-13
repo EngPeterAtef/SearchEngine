@@ -333,6 +333,7 @@ public class Crawler{
         } catch (IOException e) {
             //exception handling left as an exercise for the reader
         }
+        System.out.println("\n\nEnter number of threads");
         Scanner scanner = new Scanner(System.in);
         NUM_THREADS = scanner.nextInt();
         scanner.close();
