@@ -1,9 +1,8 @@
 package Database;
+//MONGODB
 import static com.mongodb.client.model.Filters.eq;
-
 import com.mongodb.*;
 import com.mongodb.client.model.InsertOneOptions;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import org.bson.Document;
 import com.mongodb.client.MongoClient;
@@ -13,16 +12,24 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.InsertOneResult;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-
+//to Reduce log
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.mongodb.client.MongoCursor;
-import Crawler.Crawler.URLQueue;
-import Crawler.Crawler.Data;
-
+//UTILITY
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.BitSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+//FROM Crawler
+import Crawler.Crawler.URLQueue;
+//From Indexer
+import Indexer.Indexer.pair;
+
 
 public class Controller {
     String uri;
@@ -31,18 +38,8 @@ public class Controller {
     MongoCollection<Document> queueCollection;
     MongoCollection<Document> dataCollection;
     MongoCollection<Document> WebsiteDataCollection;
+    MongoCollection<Document> indexerCollection;
 
-    public Controller(){
-        uri = "mongodb://localhost:27017";
-        mongoClient = MongoClients.create(uri);
-        //connect to db
-        database = mongoClient.getDatabase("SearchEngine");
-        //get collection
-        queueCollection = database.getCollection("queue");
-        dataCollection = database.getCollection("CollectedData");
-        WebsiteDataCollection = database.getCollection("WebsiteData");
-
-    }
     //------to reduce console log-----
     static Logger root = (Logger) LoggerFactory
             .getLogger(Logger.ROOT_LOGGER_NAME);
@@ -50,32 +47,23 @@ public class Controller {
     static {
         root.setLevel(Level.INFO);
     }
-    //------------------------------------
-    public void ControllerTest() {
-        // write your code here
-        // Replace the uri string with your MongoDB deployment's connection string
-        //connection string
-        String uri = "mongodb://localhost:27017";
-        //create connection
-        try (MongoClient mongoClient = MongoClients.create(uri)) {
+    public Controller(boolean connect){
+        if (connect){
+            uri = "mongodb://localhost:27017";
+            mongoClient = MongoClients.create(uri);
             //connect to db
-            MongoDatabase database = mongoClient.getDatabase("todo-app");
-            //get collection
-            MongoCollection<Document> collection = database.getCollection("todos");
-            //insert example
-            try {
-                InsertOneResult result = collection.insertOne(new Document()
-                        .append("_id", new ObjectId())
-                        .append("item", "added from java"));
-                System.out.println("Success! Inserted document id: " + result.getInsertedId());
-            } catch (MongoException me) {
-                System.err.println("Unable to insert due to an error: " + me);
-            }
-            //find example
-            Document doc = collection.find(eq("item", "buy eggs")).first();
-//            System.out.println(doc.toJson());
+            database = mongoClient.getDatabase("SearchEngine");
+            //---------CRAWLER COLLECTIONS----------
+            queueCollection = database.getCollection("queue");
+            dataCollection = database.getCollection("CollectedData");
+            WebsiteDataCollection = database.getCollection("WebsiteData");
+            //---------INDEXER COLLECTIONS----------NOT USED YET
+            indexerCollection = database.getCollection("Indexed_documents");
         }
     }
+    //----------------------------------------
+    //-----------CRAWLER FUNCTIONS------------
+    //----------------------------------------
     //----------ADD SITE BODY TO DB-----------
     public void AddSiteData(String url, String title,String body){
         //insert
@@ -192,6 +180,63 @@ public class Controller {
 //            System.out.println("Success! Inserted document id: " + result.getInsertedId());
         } catch (MongoException me) {
             System.err.println("Unable to insert site to collected data due to an error: " + me);
+        }
+    }
+    //----------------------------------------
+    //-----------INDEXER FUNCTIONS------------
+    //----------------------------------------
+    public static long convert(BitSet bits) {
+        long value = 0L;
+        for (int i = 0; i < bits.length(); ++i) {
+            value += bits.get(i) ? (1L << i) : 0L;
+        }
+        return value;
+    }
+    public static void indexerone(HashMap<String,HashMap<String,pair>>mymap)
+    {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
+        String uri = "mongodb://localhost:27017/SearchEngine";
+        MongoClient mongo = MongoClients.create(uri);
+        MongoDatabase database = mongo.getDatabase("myData");
+        //get collection
+        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+
+        Document doc=new Document();
+        for(Map.Entry<String, HashMap<String,pair>> entry : mymap.entrySet())
+        {
+            doc.append("_id", new ObjectId());
+            doc.append("Word",entry.getKey());
+
+            List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
+            for(Map.Entry<String,pair>subentry:entry.getValue().entrySet())
+            {
+                BasicDBObject obj = new BasicDBObject();
+                obj.append("URL",subentry.getKey());
+                obj.append("Count",subentry.getValue().count);
+                long pos = convert(subentry.getValue().location);
+                obj.append("locations",pos);
+                lis.add(obj);
+            }
+            doc.append("Websites",lis);
+
+            collection.insertOne(doc);
+
+        }
+
+    }
+
+    //----------------------------------------
+    //-------------UTILITY CLASSES------------
+    //----------------------------------------
+
+    //class to specify the structure of HTML (Collected data)
+    public static class Data{
+        public String url;
+        public boolean visited;
+        public String html;
+        public Data(String url, boolean visited, String html){
+            this.url = url;
+            this.visited = visited;
+            this.html = html;
         }
     }
 }

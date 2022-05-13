@@ -1,19 +1,21 @@
 package Crawler;
-
+//FOR JSON FILES
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+//JSOUP
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
+//UTILITY
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+//FROM CONTROLLER
 import Database.Controller;
+import Database.Controller.Data;
 
 class CrawlerRunnable implements Runnable{
     Crawler crawler;
@@ -32,9 +34,9 @@ public class Crawler{
     //number of threads used
     private static int NUM_THREADS = 8;
     //list of visited links to not visit a link again
-    private static ArrayList<String> UrlsInQueue = new ArrayList<String>();
+    private static ArrayList<String> UrlsInQueue = new ArrayList<>();
     //list of robot.txt links to not visit these links
-    private static List<String> RobotLinks = new ArrayList<String>();
+    private static List<String> RobotLinks = new ArrayList<>();
     //list of urls existing in queue
     private static List<URLQueue> URLs = null;
     //List of data from data.json file
@@ -49,13 +51,12 @@ public class Crawler{
     static Gson gson = null;
 
     // create a reader
-    static Reader queueReader = null;
-    static Reader dataReader = null;
+//    static Reader queueReader = null;
+//    static Reader dataReader = null;
     //database controller
     Controller DBControllerObj;
     static int queueSize;
-
-    //class to specify the structure of QUEUE JSON objects
+    //class to specify the structure of QUEUE objects
     public static class URLQueue{
         public String url;
         public boolean visited;
@@ -68,18 +69,6 @@ public class Crawler{
             this.normalization = normalization;
         }
     }
-    //class to specify the structure of HTML (Collected data) JSON objects
-    public static class Data{
-        public String url;
-        public boolean visited;
-        public String html;
-        public Data(String url, boolean visited, String html){
-            this.url = url;
-            this.visited = visited;
-            this.html = html;
-        }
-    }
-
     public void StartCrawler()
     {
             synchronized (this) {
@@ -211,7 +200,7 @@ public class Crawler{
             for(Element link :  doc.select("a[href]")){
                 String next_link = link.absUrl("href");
 
-                if(UrlsInQueue.contains(next_link) == false && RobotLinks.contains(next_link) == false){
+                if(!UrlsInQueue.contains(next_link) && !RobotLinks.contains(next_link)){
                     synchronized (LOCK2){
                         if (queueSize >= MAX_PAGES)
                         {
@@ -264,7 +253,7 @@ public class Crawler{
     public static void main(String[] arg)
     {
         Crawler crawlerObj = new Crawler();
-        crawlerObj.DBControllerObj = new Controller();
+        crawlerObj.DBControllerObj = new Controller(true);
         try {
             // create Gson instance
 //            gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -284,7 +273,7 @@ public class Crawler{
 //            CollectedData = gson.fromJson(dataReader, new TypeToken<List<Data>>(){}.getType());
             RobotLinks = Files.readAllLines(Paths.get("robot.txt"));
             if (CollectedData == null) {
-                CollectedData = new ArrayList<Data>();
+                CollectedData = new ArrayList<>();
                 System.out.println("data NULL");
             }
             else {
@@ -301,7 +290,7 @@ public class Crawler{
 //                WriteToQueueFile(link1);
 //                WriteToQueueFile(link2);
 //                WriteToQueueFile(link3);
-                URLs = new ArrayList<URLQueue>();
+                URLs = new ArrayList<>();
                 URLs.add(link1);
                 URLs.add(link2);
                 URLs.add(link3);
@@ -311,7 +300,7 @@ public class Crawler{
             }
             //--FILE IS NOT EMPTY, THEN CONTINUE FROM LAST STATE
             else {
-                /********
+                /*
                  * STILL NOT COMPLETE
                  * ******/
                 System.out.println("queue not NULL");

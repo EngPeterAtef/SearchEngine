@@ -19,7 +19,8 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'
     //GSON
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.9.0'
-
+    //Stemmer
+    implementation 'org.apache.opennlp:opennlp-tools:1.9.4'
 
 }
 
