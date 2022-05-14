@@ -8,6 +8,7 @@ const { db } = require('../models/resultsModel');
 let getTitleAtUrl = require('get-title-at-url');
 const cheerio =  require('cheerio');
 const { json } = require('express/lib/response');
+const res = require('express/lib/response');
 
 let minib=[];
 var st=0;
@@ -16,7 +17,7 @@ let Allresult = [];
 var ArrayOfquery = [];
 let query = '';
 var queryString = '';
-var dataArray = [];
+let dataArray = [];
 var start;
 var c=0;
 function compare(a, b)
@@ -29,73 +30,67 @@ function compare(a, b)
     }
     return 0;
 };
-async function FindAndRank()
+async function FindAndRank(res)
 {
     let fn_arr = [];
-
     for (let i = 0; i < ArrayOfquery.length; i++) 
     {
-        fn_arr.push(indexer.find({word: {$regex:query}}).exec());
+        query = stemmer(ArrayOfquery[i]);
+        fn_arr.push(indexer.find({Word: query}).exec());
     }
     const resultArray = await Promise.all(fn_arr);
-    let ads = JSON.parse(resultArray);
-    for (let i = 0; i<ads.length; i++){
-        console.log(ads[i].word); 
+    //resultArray[0][0] contains object of 1st word
+    //resultArray[2][0] contains object of 2nd word
+    // console.log(resultArray[0][0]);
+    // console.log(resultArray[1][0]);
+    for (let i = 0; i < ArrayOfquery.length; i++) {
+        if(resultArray.length <= i){
+            return
+        }       
+        if(resultArray[i].length >0)
+        {
+            let IDF = Math.log(5000/resultArray[i][0].Websites.length);
+            //console.log(IDF);
+            let TF = 0;
+            let TF_IDF =0;
+            //get all the websites that has this word
+            for (let index = 0; index < resultArray[i][0].Websites.length; index++) 
+            {
+                const siteResult = await websiteData.find({url: resultArray[i][0].Websites[index].URL}).exec();
+                if(siteResult[0] != null)
+                {
+                    let str = siteResult[0].body;
+                    let indexOFquery = str.search(query);
+                    resultArray[i][0].Websites[index].title = siteResult[0].title;
+                    resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
+                    dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet});
+                    TF = resultArray[i][0].Websites[index].locations / str.length;
+                    TF_IDF = TF * IDF;
+                    dataArray[c].rank =  TF_IDF;
+                    c++;                   
+                }
+            }
+        }
     }
-    for (let i = 0; i < ArrayOfquery.length; i++) 
-    {   
-
-        query = stemmer(ArrayOfquery[i]);
-        //console.log(query);
-        // find the word that the user is searching for
-        // indexer.find({word: {$regex:query}}, function (error, data)
-        // {
-        //     if (error) {
-        //             console.log("hello error");
-        //             throw error;
-        //         }
-        //         if(data.length >0)
-        //         {
-        //             let IDF = Math.log(5000/data[0].list.length);
-        //             //console.log(IDF);
-        //             let TF = 0;
-        //             let TF_IDF =0;
-        //             //get all the websites that has this word
-        //             for (let index = 0; index < data[0].list.length; index++) 
-        //             {
-        //                 websiteData.find({url: data[0].list[index].url} ,  function (error, Webdata) {
-        //                     if (error) {
-        //                         throw error;
-        //                     }
-        //                     if(Webdata[0] != null)
-        //                     {
-        //                         let str = Webdata[0].body;
-        //                         let indexOFquery = str.search(query);
-        //                         data[0].list[index].title = Webdata[0].title;
-        //                         data[0].list[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-        //                         dataArray.push({"url": data[0].list[index].url, "title": data[0].list[index].title, "snippet": data[0].list[index].snippet});
-        //                         TF = data[0].list[index].occurance / str.length;
-        //                         TF_IDF = TF * IDF;
-        //                         dataArray[c].rank =  TF_IDF;
-        //                         c++;                   
-        //                     }
-        //                 });
-        //             }
-        //         }
-        // });
-    }
+    fillResults();
+    console.log(Allresult);
+    res.redirect('http://localhost:3000/results/'+queryString+'/1')
 };
 
 
 function fillResults() {
                 
+    console.log(dataArray);
     if(dataArray.length > 0)
     {
+        console.log(dataArray);
         dataArray.sort(compare);
+        console.log(dataArray);
         for (let index = 0; index < dataArray.length; index++) 
         {
             Allresult.push({"url": dataArray[index].url, "title": dataArray[index].title, "snippet":dataArray[index].snippet});
         }
+        // console.log(Allresult);
         // console.log(dataArray);
         btnnumbs = Math.ceil(Allresult.length/5);
         minib = [];
@@ -122,12 +117,7 @@ module.exports = function (app) {
         ArrayOfquery = queryString.split(" ");
         c = 0;
         //here we loop on each word of the user's input
-        FindAndRank();
-        // when the list of data is ready send it to the front end
-
-
-        //fillResults();
-        //res.redirect('http://localhost:3000/results/'+queryString+'/1');
+        FindAndRank(res);
 
     });
     

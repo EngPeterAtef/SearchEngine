@@ -7,9 +7,9 @@ let mongoose=require('mongoose');
 // //make a schema to know what kind of info to expect from db
 // //this is not our schema yet..
 let indexerSchema = new mongoose.Schema({
-    word: String,
-    list: [{ url: String,title: String, position: Number, occurance: Number }]
-}, {collection: "indexer"});
+    Word: String,
+    Websites: [{ URL: String,Count: Number, locations: Number }]
+}, {collection: "Indexed_documents"});
 
 // //create a model based on this schema
 let indexer = mongoose.model('indexer', indexerSchema);
