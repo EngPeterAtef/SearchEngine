@@ -31,7 +31,7 @@ class CrawlerRunnable implements Runnable{
 }
 public class Crawler{
     //Maximum number of total visited pages, 5000 in this project
-    private static final int MAX_PAGES = 500;
+    private static final int MAX_PAGES = 100;
     //number of threads used
     private static int NUM_THREADS;
     //list of visited links to not visit a link again
@@ -72,79 +72,87 @@ public class Crawler{
     }
     public void StartCrawler()
     {
-            synchronized (this) {
-                while (Integer.parseInt(Thread.currentThread().getName()) + 1 > URLs.size()){
-                    try {
-                        System.out.println("Thread: " + Thread.currentThread().getName() + " ,Size: " + URLs.size() + " " + this);
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println("Thread: " + Thread.currentThread().getName() + " ,woke up");
-            }
+//        synchronized (this) {
+//            while (Integer.parseInt(Thread.currentThread().getName()) + 1 > URLs.size()){
+//                try {
+//                    System.out.println("Thread: " + Thread.currentThread().getName() + " ,Size: " + URLs.size() + " " + this);
+//                    wait();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            System.out.println("Thread: " + Thread.currentThread().getName() + " ,woke up");
+//        }
         while (true){
 //            System.out.printf("Thread: %s, size: %d\n", Thread.currentThread().getName(), i);
 //            System.out.println("Thread: "+ Integer.parseInt(Thread.currentThread().getName()));
             URLQueue URLObj = null;
             synchronized (LOCK1){
                 if (URLs.isEmpty()){
+//                    synchronized (this){
+//                        notifyAll();
+//                    }
                     return;
                 }
 //                System.out.println(i);
 //                i++;
                 URLObj = URLs.get(0);
                 URLs.remove(0);
+//                System.out.println(URLObj.url);
             }
                 //System.out.println(URLObj.url);
                 //if the link is not visited before, visit it (get its html content)
-                if (!URLObj.visited) {
+            if (!URLObj.visited) {
 //                System.out.println("not visited");
-                    String url = URLObj.url;
-                    Document doc = request(url);
-                    if (doc != null) {
-                        //normalize url
-                        String n = NormalizeUrl(doc);
-                        //check if the normalization existed before, scam
-                        if (!normalizedUrls.contains(n)){
-                            normalizedUrls.add(n);
-                            //-----INSERT DATA TO FILE----
-                            URLObj.visited = true;
-                            //System.out.println(n);
-                            URLObj.normalization = n;
-                            //set the site to visited
+                String url = URLObj.url;
+                Document doc = request(url);
+                if (doc != null) {
+                    //normalize url
+                    String n = NormalizeUrl(doc);
+                    //check if the normalization existed before, scam
+                    if (!normalizedUrls.contains(n)){
+                        normalizedUrls.add(n);
+                        //-----INSERT DATA TO FILE----
+                        URLObj.visited = true;
+                        //System.out.println(n);
+                        URLObj.normalization = n;
+                        //set the site to visited
 //                            synchronized (URLs){
 //                                URLs.set(i, URLObj);
 //                            }
-                            Data data = new Data(url, false, doc.html());
-                            //update queue file to update the visited status in file
+                        Data data = new Data(url, false, doc.html());
+                        //update queue file to update the visited status in file
 //                            UpdateQueueFile();
-                            //mongodb
-                            DBControllerObj.UpdateQueue(URLObj);
-                            //update data file to add new html
+                        //mongodb
+                        DBControllerObj.UpdateQueue(URLObj);
+                        //update data file to add new html
 //                            WriteToDataFile(data);
-                            DBControllerObj.AddToCollectedData(data);
-                            DBControllerObj.AddSiteData(url, doc.title(), doc.body().text());
-                            crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
-                        }
-                        else{
+                        DBControllerObj.AddToCollectedData(data);
+                        DBControllerObj.AddSiteData(url, doc.title(), doc.body().text());
+                        crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
+                    }
+                    else{
 //                          //if the normalization existed before, remove site from queue to not visit it again
 //                            UpdateQueueFile();
-                            //mongodb
-                            DBControllerObj.RemoveFromQueue(URLObj);
-                            synchronized (LOCK2){
-                                queueSize--;
-                            }
-                        }
-                    }
-                    else {
+                        //mongodb
                         DBControllerObj.RemoveFromQueue(URLObj);
                         synchronized (LOCK2){
                             queueSize--;
                         }
                     }
                 }
+                else {
+                    DBControllerObj.RemoveFromQueue(URLObj);
+                    synchronized (LOCK2){
+                        queueSize--;
+                    }
+                }
             }
+//            synchronized (this){
+//                System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
+//                notifyAll();
+//            }
+        }
     }
 
     private String NormalizeUrl(Document doc){
@@ -219,10 +227,10 @@ public class Crawler{
                         UrlsInQueue.add(next_link);
                     }
                     DBControllerObj.AddToQueue(nxtLink);
-                    synchronized (this){
-                        System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
-                        notifyAll();
-                    }
+//                    synchronized (this){
+//                        System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
+//                        notifyAll();
+//                    }
                 }
                 else if (UrlsInQueue.contains(next_link)){
                     synchronized (LOCK2){
@@ -288,7 +296,7 @@ public class Crawler{
                 System.out.println("queue NULL");
                 URLQueue link1= new URLQueue("https://en.wikipedia.org/wiki/The_Batman_(film)", false, -1, "");
                 URLQueue link2= new URLQueue("https://www.bbc.com", false, -1, "");
-                URLQueue link3= new URLQueue("https://www.facebook.com/", false, -1, "");
+                URLQueue link3= new URLQueue("https://www.nytimes.com/", false, -1, "");
 //                WriteToQueueFile(link1);
 //                WriteToQueueFile(link2);
 //                WriteToQueueFile(link3);
@@ -306,9 +314,15 @@ public class Crawler{
                  * STILL NOT COMPLETE
                  * ******/
                 System.out.println("queue not NULL");
+                int visitedNum = 0;
                 for (int i = 0; i < URLs.size(); i++) {
                     normalizedUrls.add(URLs.get(i).normalization);
+//                    if (URLs.get(i).visited){
+//                        visitedNum++;
+//                    }
                 }
+//                if (visitedNum == URLs.size())
+//                    return;
             }
             //initial size of the queue
             queueSize = URLs.size();

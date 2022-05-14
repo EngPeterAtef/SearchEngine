@@ -192,13 +192,13 @@ public class Controller {
         }
         return value;
     }
-    public static void indexerone(HashMap<String,HashMap<String,pair>>mymap)
+    public void indexerone(HashMap<String,HashMap<String,pair>>mymap)
     {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
-        String uri = "mongodb://localhost:27017/SearchEngine";
-        MongoClient mongo = MongoClients.create(uri);
-        MongoDatabase database = mongo.getDatabase("myData");
-        //get collection
-        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+//        String uri = "mongodb://localhost:27017/SearchEngine";
+//        MongoClient mongo = MongoClients.create(uri);
+//        MongoDatabase database = mongo.getDatabase("myData");
+//        //get collection
+//        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
 
         Document doc=new Document();
         for(Map.Entry<String, HashMap<String,pair>> entry : mymap.entrySet())
@@ -218,10 +218,44 @@ public class Controller {
             }
             doc.append("Websites",lis);
 
-            collection.insertOne(doc);
+            indexerCollection.insertOne(doc);
 
         }
 
+    }
+    public void insertIndexedWord(String word,HashMap <String,pair> siteMap)
+    {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
+//        String uri = "mongodb://localhost:27017/SearchEngine";
+//        MongoClient mongo = MongoClients.create(uri);
+//        MongoDatabase database = mongo.getDatabase("myData");
+//        //get collection
+//        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+
+        Document doc=new Document();
+        doc.append("_id", new ObjectId());
+        doc.append("Word",word);
+
+        List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
+        for(Map.Entry<String,pair>subentry:siteMap.entrySet())
+        {
+            BasicDBObject obj = new BasicDBObject();
+            obj.append("URL",subentry.getKey());
+            obj.append("Count",subentry.getValue().count);
+            long pos = convert(subentry.getValue().location);
+            obj.append("locations",pos);
+            lis.add(obj);
+        }
+        doc.append("Websites",lis);
+        indexerCollection.insertOne(doc);
+    }
+    public void UpdateVisitedInCollectedData(String url, boolean visited)
+    {
+        Document query = new Document().append("url",  url);
+        try {
+            dataCollection.updateOne(query, Updates.set("visited", visited));
+        } catch (MongoException me) {
+            System.err.println("Unable to update site in collected data due to an error: " + me);
+        }
     }
 
     //----------------------------------------

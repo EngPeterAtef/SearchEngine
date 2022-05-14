@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 public class Indexer {
     private static LinkedHashSet<String> allWords = new LinkedHashSet<String>();
     private static LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
+    Controller DBControllerObj = new Controller(true);
     private static List<Document>docs=new ArrayList<Document>();
     // private static  FileWriter writ;
     public class syncho implements Runnable{
@@ -58,7 +59,7 @@ public class Indexer {
             Integer range=allWords.size()/10;
             Integer start=Integer.parseInt(Thread.currentThread().getName())*range;
             Integer end;
-            if(Thread.currentThread().getName()=="9")
+            if(Thread.currentThread().getName().equals("9"))
                 end=start+range+rem;
             else end=start+range;
 
@@ -105,7 +106,8 @@ public class Indexer {
 
                 }
                 synchronized (this.x) {
-                    indexermap.put(aword,tempo);
+//                    indexermap.put(aword,tempo);
+                    DBControllerObj.insertIndexedWord(aword, tempo);
                 }
 
 
@@ -198,29 +200,42 @@ public class Indexer {
             // create Gson instance
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             // create a reader
-            Reader reader = Files.newBufferedReader(Paths.get("data.json"));
+//            Reader reader = Files.newBufferedReader(Paths.get("data.json"));
 
             //-----------------------------------------
             //------TO READ DATA FROM DATABASE---------
             //-----------------------------------------
-//            Controller DBControllerObj =  new Controller(true);
-//            CollectedData = DBControllerObj.GetCollectedData();
+            Indexer indexerObj = new Indexer();
+//            indexerObj.DBControllerObj =  new Controller(true);
+            CollectedData = indexerObj.DBControllerObj.GetCollectedData();
+            if (CollectedData != null){
+                System.out.println(CollectedData.size());
+            }
+            else {
+                System.out.println("Null");
+            }
             //-----------------------------------------
-            CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {
-            }.getType());// array of json objects websites
-            reader.close();
+//            CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {
+//            }.getType());// array of json objects websites
+//            reader.close();
 
             // array of stop words
             stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
-
+            int collectedDataSize = CollectedData.size();
             // writ=new FileWriter("tm.txt");
-            for (int i = 0; i < CollectedData.size(); i++) {
+            for (int i = 0; i < collectedDataSize; i++) {
                 if(CollectedData.get(i).visited==true)
                     continue;
                 docs.add(Jsoup.parse(CollectedData.get(i).html));
+                allWords2.addAll(Stream.of(docs.get(i).text().replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().split(" "))
+                        .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
                 CollectedData.get(i).visited=true;
+                indexerObj.DBControllerObj.UpdateVisitedInCollectedData(CollectedData.get(i).url, true);
+                CollectedData.get(i).html = "";
+//                CollectedData.remove(CollectedData.size() - 1);
             }
+
 
             PorterStemmer p = new PorterStemmer();
 
@@ -240,6 +255,8 @@ public class Indexer {
 
             allWords.remove("");
 
+            System.out.println(docs.size());
+            System.out.println(allWords.size());
 
             Indexer indo=new Indexer();
             syncho ob=indo.new syncho(indo);
@@ -249,9 +266,9 @@ public class Indexer {
             t0.start();t1.start();t2.start();t3.start();t4.start();t5.start();t6.start();t7.start();   t8.start();   t9.start();
             t0.join();t1.join();t2.join();t3.join();t4.join();t5.join();t6.join();t7.join();t8.join();t9.join();
             System.out.println("joined");
-            System.out.println(indexermap.size());
+//            System.out.println(indexermap.size());
 
-            Controller.indexerone(indexermap);
+//            indexerObj.DBControllerObj.indexerone(indexermap);
 
         } catch (Exception ex) {
             ex.printStackTrace();
