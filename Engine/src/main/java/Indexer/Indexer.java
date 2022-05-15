@@ -1,10 +1,14 @@
 package Indexer;
 import Database.Controller;
+
+/* Java program to find a Pair which has maximum score*/
+
 import Database.Controller.Data;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import opennlp.tools.stemmer.PorterStemmer;
 import com.google.gson.*;
+import java.lang.Integer;
 import com.google.gson.reflect.TypeToken;
 import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoException;
@@ -15,7 +19,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.InsertOneResult;
 import org.bson.types.ObjectId;
-
+import org.jsoup.safety.Whitelist;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -45,7 +49,7 @@ public class Indexer {
     private static LinkedHashSet<String> allWords = new LinkedHashSet<String>();
     private static LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
     Controller DBControllerObj = new Controller(true);
-    private static List<Document>docs=new ArrayList<Document>();
+    private static List<String>docs=new ArrayList<String>();
     // private static  FileWriter writ;
     public class syncho implements Runnable{
         //lock  = calling object => which is the thread
@@ -55,6 +59,7 @@ public class Indexer {
         }
         public void run()
         {
+            Stack<String>tagstack=new Stack<>();
             Integer rem=allWords.size()%10;
             Integer range=allWords.size()/10;
             Integer start=Integer.parseInt(Thread.currentThread().getName())*range;
@@ -76,30 +81,36 @@ public class Indexer {
             }
             while(ew<end)// ma3aya kelma
             {
-                HashMap <String,pair>tempo = new HashMap<String, pair>();
+                HashMap <String,triple>tempo = new HashMap<String,triple>();
                 //Integer k=0;
                 ew++;
                 String aword=itr.next();
-                System.out.println(ew);
+                // System.out.println(ew);
 
 
                 for (int k=0;k<docs.size();k++)// le kol doc
                 {
-                    pair temppair = new pair();
+                    triple temppair = new triple();
+                    // temppair.positions=new ArrayList<>();
 
-                    Elements selectResult=docs.get(k).getElementsContainingOwnText(aword);
-
-                    for (Element e : selectResult) {// kol el elements ely gowahom el
-                        temppair.count++;
-                        Elements parents = e.parents();
-                        for (Element h : parents)// each tag
+                    //  Elements selectResult=docs.get(k).getElementsContainingOwnText(aword);
+                    int index = 0, count = 0;
+                    while (true)
+                    {
+                        index = docs.get(k).indexOf(aword, index);
+                        if (index != -1)
                         {
-                            setlocations(h.tagName(), temppair.location);// set all locations
+                            temppair.count++;
+                            temppair.positions.add(index);
 
 
+                            index+=aword.length();
                         }
-
+                        else {
+                            break;
+                        }
                     }
+
                     if(temppair.count!=0)
                         tempo.put(CollectedData.get(k).url, temppair);
 
@@ -107,6 +118,7 @@ public class Indexer {
                 }
                 synchronized (this.x) {
 //                    indexermap.put(aword,tempo);
+                    System.out.println(ew);
                     DBControllerObj.insertIndexedWord(aword, tempo);
                 }
 
@@ -114,20 +126,30 @@ public class Indexer {
             }
         }
     }
+
+    private static List<List<pair>>tagsList=new ArrayList<>();
     private static List<Data> CollectedData = null;// areay of websirtes
-    private static HashMap<String, HashMap<String, pair>> indexermap = new HashMap<String, HashMap<String, pair>>();
-    private static List<HashMap<String, HashMap<String, pair>>> subindexermap=new ArrayList<HashMap<String, HashMap<String, pair>>>();
+    private static HashMap<String, HashMap<String,triple>> indexermap = new HashMap<String, HashMap<String, triple>>();
+    private static List<HashMap<String, HashMap<String, triple>>> subindexermap=new ArrayList<HashMap<String, HashMap<String,triple>>>();
     // word //url //occurrences
     private static List<String> stopwords = null;
 
-    public static class pair {
+
+    public static class pair{
+        public String tagName;
+        public Integer tagIndex;
+    }
+
+    public static class triple {
         public Integer count;
         // public BitSet location ;
         public BitSet location;
+        public List<Integer>positions;
 
-        pair() {
+        triple() {
 
             location=new BitSet(15);
+            positions=new ArrayList<>();
             count = 0;
         }
     }
@@ -194,6 +216,37 @@ public class Indexer {
     {
 
     }
+    static void gettag(Integer i)
+    {
+        int index1=0;
+        List<pair>onedocumenttags=new ArrayList<>() ;
+        tagsList.add(onedocumenttags);
+        String allowed="header h1 h2 h3 h4 h5 h6 p nav body /header /h1 /h2 /h3 /h4 /h5 /h6 /p /nav /body";
+        while (true)
+        {
+            index1 = docs.get(i).indexOf("<", index1);
+            if (index1 != -1) {
+
+                int index2 = docs.get(i).indexOf(">", index1);
+                if(!allowed.contains(docs.get(i).substring(index1+1, index2)))
+                {
+                    index1 = index2;
+                    continue;
+                }
+
+                pair tem=new pair();
+                tem.tagIndex=index1+1;
+                tem.tagName=docs.get(i).substring(index1+1, index2);
+                tagsList.get(i).add(tem);
+                index1 = index2;
+
+            }
+            else {
+                break;
+            }
+        }
+
+    }
 
     public static void main(String[] arg) {
         try {
@@ -225,13 +278,22 @@ public class Indexer {
             int collectedDataSize = CollectedData.size();
             // writ=new FileWriter("tm.txt");
             for (int i = 0; i < collectedDataSize; i++) {
-                if(CollectedData.get(i).visited==true)
-                    continue;
-                docs.add(Jsoup.parse(CollectedData.get(i).html));
-                allWords2.addAll(Stream.of(docs.get(i).text().replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().split(" "))
+//                if(CollectedData.get(i).visited==true)
+//                    continue;
+                Document doo=Jsoup.parse(CollectedData.get(i).html);
+                doo.select("script,.hidden,style,img,link,figure,pre,path,footer,meta,br,base,col,command,area,input,param,wbr,track,source,keygen,embed").remove();
+                Whitelist wl = Whitelist.basic();//remove attributes
+                wl.addTags("div", "span","h1","h2","h3","h4","h5","h6","div","li","p","a","ul","nav","body","footer");
+
+                docs.add(Jsoup.clean(doo.toString(),wl));
+                // docs.add(CollectedData.get(i).html);
+
+                allWords2.addAll(Stream.of(doo.text().replaceAll("[^a-zA-Z0-9\\s]", " ").toLowerCase().split(" "))
                         .collect(Collectors.toCollection(LinkedHashSet<String>::new)));// array of all words in page
-                CollectedData.get(i).visited=true;
-                indexerObj.DBControllerObj.UpdateVisitedInCollectedData(CollectedData.get(i).url, true);
+                //CollectedData.get(i).visited=true;
+                //indexerObj.DBControllerObj.UpdateVisitedInCollectedData(CollectedData.get(i).url, true);
+                gettag(i);
+                System.out.println("mo");
                 CollectedData.get(i).html = "";
 //                CollectedData.remove(CollectedData.size() - 1);
             }
