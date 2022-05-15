@@ -1,5 +1,5 @@
 let results = document.querySelectorAll(`.in-sum`);
-console.log("dddddddddddddddd");
+
 if(results !="")
 {
     let typed = document.getElementById(`searchWord`).value.toLowerCase();

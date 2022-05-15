@@ -76,6 +76,41 @@ $(document).ready(function(){
     $('form').css("border-radius"," 20px 20px 20px 20px");
   });
   //--------------------------------------------------------//
+  //----------------VOICE RECOGNITION------------------//
+  var speechRecognition = window.webkitSpeechRecognition;
+  var recognition = new speechRecognition();
+  var textbox =  $("#searchWord");
+  var mic = $('#voiceRec');
+  var content = '';
+  recognition.continuous = true;
+  recognition.onstart = function(){
+    //instructions.text("voice recognition is on");
+    mic.css("color", "red");
+  }
+  recognition.onspeechend = function(){
+    //instructions.text("No activity");
+
+  }
+  recognition.onerror = function(){
+    //instructions.text("Try again");
+  }
+  recognition.onresult = function(event){
+    var current = event.resultIndex;
+    var transcript = event.results[current][0].transcript;
+    content+= transcript.substring(0,transcript.length -1).toLowerCase();;
+    content+=' ';
+    textbox.val(content);
+    recognition.stop();
+    mic.css("color", "#808080");
+  }
+  $("#voiceRec").click(function(event) {
+    content =' ';
+    recognition.start();
+    mic.css("color", "red");
+  });
+  textbox.on('input',function(){
+      content = $(this.val());
+  });
     //------------Navigate between results with arrows------//
     $(document).on('keydown', function(e){
       let keycode = (e.keyCode ? e.keyCode :e.which);

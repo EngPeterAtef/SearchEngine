@@ -31,7 +31,7 @@
                     <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off" value="<%=word%>">
                     <div>
                         <button type="button"> <i class="fa-solid fa-xmark" id="x"></i></button>
-                        <button type="button"> <i class="fa fa-microphone"></i></button>
+                        <button type="button"> <i class="fa fa-microphone" id="voiceRec"></i></button>
                     </div>
                 </div>
                 <hr>
@@ -48,11 +48,11 @@
                     <div class="link-card"></div>
                         <%minib.forEach(blog=>{%>
                             <div class="cont">
-                                <span id="resLink"><%=blog.url%></span>
+                                <span id="resLink"><%=blog.url.substring(0, 100)%>... </span>
                                 <h3 class="in-tit">
                                     <a href="<%=blog.url%>"><%=blog.title%></a>
                                 </h3>
-                                <p class="in-sum"><%=blog.snippet.toLowerCase().replace(word,"<span id=\"boldedWord\">" + word + "</span>") %>... </p>
+                                <p class="in-sum"><%=blog.snippet.toLowerCase().replace(word,"<span id=\"boldedWord\"> " + word + " </span>") %>... </p>
                             </div>
                             <%});%>
 

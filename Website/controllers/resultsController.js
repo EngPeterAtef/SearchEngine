@@ -36,7 +36,7 @@ async function FindAndRank(res)
     for (let i = 0; i < ArrayOfquery.length; i++) 
     {
         query = stemmer(ArrayOfquery[i]);
-        fn_arr.push(indexer.find({Word: query}).exec());
+        fn_arr.push(indexer.find({Word: query.toLowerCase()}).exec());
     }
     const resultArray = await Promise.all(fn_arr);
     //resultArray[0][0] contains object of 1st word
@@ -73,26 +73,26 @@ async function FindAndRank(res)
         }
     }
     fillResults();
-    console.log(Allresult);
+    //console.log(Allresult);
     res.redirect('http://localhost:3000/results/'+queryString+'/1')
 };
 
 
 function fillResults() {
                 
-    console.log(dataArray);
+    //console.log(dataArray);
     if(dataArray.length > 0)
     {
-        console.log(dataArray);
+        //console.log(dataArray);
         dataArray.sort(compare);
-        console.log(dataArray);
+        //console.log(dataArray);
         for (let index = 0; index < dataArray.length; index++) 
         {
             Allresult.push({"url": dataArray[index].url, "title": dataArray[index].title, "snippet":dataArray[index].snippet});
         }
         // console.log(Allresult);
         // console.log(dataArray);
-        btnnumbs = Math.ceil(Allresult.length/5);
+        btnnumbs = Math.ceil(Allresult.length/10);
         minib = [];
         endtime = new Date() - start;
         console.log("Found "+dataArray.length+" results "+endtime + " ms");
@@ -127,7 +127,7 @@ module.exports = function (app) {
         var starting = (parseInt(req.params.i)-1)*5;
         let k=0;
         minib =[];
-        for(let j=starting;j<Math.min(starting+5,Allresult.length);j++)
+        for(let j=starting;j<Math.min(starting+10,Allresult.length);j++)
         {
             minib[k] = Allresult[j];
             k++;

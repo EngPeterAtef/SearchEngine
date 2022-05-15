@@ -86,7 +86,7 @@ color:#000000d5;
   }
   .cont{
       /* background-color: aqua; */
-      width:80%;
+      width:90%;
       border-radius: 15px;
       background-color: #262626;
        /* padding-left: 20px;
@@ -179,4 +179,5 @@ color:#000000d5;
   margin-top: 7px;
   color: #bcbcbc;
   font-size: 14px;
+  max-width: 400px;
 }
