@@ -231,24 +231,28 @@ public class Controller {
 //        MongoDatabase database = mongo.getDatabase("myData");
 //        //get collection
 //        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+        try {
 
-        Document doc=new Document();
-        doc.append("_id", new ObjectId());
-        doc.append("Word",word);
 
-        List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
-        for(Map.Entry<String,triple>subentry:siteMap.entrySet())
-        {
-            BasicDBObject obj = new BasicDBObject();
-            obj.append("URL",subentry.getKey());
-            obj.append("Count",subentry.getValue().count);
-            long pos = convert(subentry.getValue().location);
-            obj.append("locations",pos);
-            obj.append("positions",subentry.getValue().positions);
-            lis.add(obj);
+            Document doc = new Document();
+            doc.append("_id", new ObjectId());
+            doc.append("Word", word);
+
+            List<BasicDBObject> lis = new ArrayList<BasicDBObject>();
+            for (Map.Entry<String, triple> subentry : siteMap.entrySet()) {
+                BasicDBObject obj = new BasicDBObject();
+                obj.append("URL", subentry.getKey());
+                obj.append("Count", subentry.getValue().count);
+                long pos = convert(subentry.getValue().location);
+                obj.append("locations", pos);
+                obj.append("positions", subentry.getValue().positions);
+                lis.add(obj);
+            }
+            doc.append("Websites", lis);
+            indexerCollection.insertOne(doc);
         }
-        doc.append("Websites",lis);
-        indexerCollection.insertOne(doc);
+        catch (org.bson.BsonMaximumSizeExceededException e){
+        }
     }
     public void UpdateVisitedInCollectedData(String url, boolean visited)
     {
