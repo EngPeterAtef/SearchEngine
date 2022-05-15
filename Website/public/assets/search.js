@@ -89,10 +89,12 @@ $(document).ready(function(){
   }
   recognition.onspeechend = function(){
     //instructions.text("No activity");
+    mic.css("color", "#808080");
 
   }
   recognition.onerror = function(){
     //instructions.text("Try again");
+    mic.css("color", "#808080");
   }
   recognition.onresult = function(event){
     var current = event.resultIndex;
