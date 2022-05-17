@@ -4,6 +4,7 @@ let bodyParser=require('body-parser');
 let results = require('../models/resultsModel');
 let indexer = require('../models/indexerModel');
 let websiteData = require('../models/websiteDataModel');
+let collectedData = require('../models/collectedDataModel');
 const { db } = require('../models/resultsModel');
 let getTitleAtUrl = require('get-title-at-url');
 const cheerio =  require('cheerio');
@@ -20,6 +21,8 @@ var queryString = '';
 let dataArray = [];
 var start;
 var c=0;
+
+let matchingArray=[];
 function compare(a, b)
 {
     if ( a.rank < b.rank ){
@@ -40,58 +43,95 @@ async function FindAndRank(res)
     }
     const resultArray = await Promise.all(fn_arr);
     //resultArray[0][0] contains object of 1st word
-    //resultArray[2][0] contains object of 2nd word
-    // console.log(resultArray[0][0]);
-    // console.log(resultArray[1][0]);
-    for (let i = 0; i < ArrayOfquery.length; i++) {
-        if(resultArray.length <= i){
-            return
-        }       
-        if(resultArray[i].length >0)
+    //resultArray[1][0] contains object of 2nd word
+    //resultArray[2][0] contains object of 3rd word
+    if(queryString[0] === '"' && queryString[queryString.length-1] === '"')
+    {
+        let flag = false;
+        for (let i = 0; i < ArrayOfquery.length - 1; i++) //loop on each word
         {
-            let IDF = Math.log(5000/resultArray[i][0].Websites.length);
-            //console.log(IDF);
-            let TF = 0;
-            let TF_IDF =0;
-            //get all the websites that has this word
-            for (let index = 0; index < resultArray[i][0].Websites.length; index++) 
+            flag = false;
+            for (let j = 0; j < resultArray[i][0].Websites.length; j++) // loop on each url in the first word
             {
-                const siteResult = await websiteData.find({url: resultArray[i][0].Websites[index].URL}).exec();
+                const siteResult = await collectedData.find({url: resultArray[i][0].Websites[j].URL}).exec();
                 if(siteResult[0] != null)
                 {
-                    let str = siteResult[0].body;
-                    let indexOFquery = str.search(query);
-                    resultArray[i][0].Websites[index].title = siteResult[0].title;
-                    resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-                    dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet});
-                    TF = resultArray[i][0].Websites[index].locations / str.length;
-                    TF_IDF = TF * IDF;
-                    dataArray[c].rank =  TF_IDF;
-                    c++;                   
+                    if(siteResult[0].html.includes(queryString))
+                    {
+                        matchingArray.push(resultArray[i][0].Websites[j].URL);
+                        
+                    }
+                }
+            }
+        }
+        let IDF = Math.log(5000/matchingArray.length);
+        let TF = 0;
+        let TF_IDF = 0;
+        //get all the websites that has this word
+        for (let index = 0; index < matchingArray.length; index++) 
+        {
+            const siteResult = await websiteData.find({url: matchingArray[i]}).exec();
+            if(siteResult[0] != null)
+            {
+                let str = siteResult[0].body;
+                let indexOFquery = str.search(query);
+                //resultArray[i][0].Websites[index].title = siteResult[0].title;
+                //resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
+                dataArray.push({"url": matchingArray[i], "title": siteResult[0].title, "snippet": str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length))});
+                //TF = resultArray[i][0].Websites[index].locations / str.length;
+                //TF_IDF = TF * IDF;
+                dataArray[c].rank =  0;
+                c++;                   
+            }
+        }
+    }
+    else
+    {
+        for (let i = 0; i < ArrayOfquery.length; i++) 
+        {
+            if(resultArray.length <= i)
+            {
+                return
+            }       
+            if(resultArray[i].length > 0)
+            {
+                let IDF = Math.log(5000/resultArray[i][0].Websites.length);
+                let TF = 0;
+                let TF_IDF = 0;
+                //get all the websites that has this word
+                for (let index = 0; index < resultArray[i][0].Websites.length; index++) 
+                {
+                    const siteResult = await websiteData.find({url: resultArray[i][0].Websites[index].URL}).exec();
+                    if(siteResult[0] != null)
+                    {
+                        let str = siteResult[0].body;
+                        let indexOFquery = str.search(query);
+                        resultArray[i][0].Websites[index].title = siteResult[0].title;
+                        resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
+                        dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet});
+                        TF = resultArray[i][0].Websites[index].locations / str.length;
+                        TF_IDF = TF * IDF;
+                        dataArray[c].rank =  TF_IDF;
+                        c++;                   
+                    }
                 }
             }
         }
     }
     fillResults();
-    //console.log(Allresult);
     res.redirect('http://localhost:3000/results/'+queryString+'/1')
 };
 
 
 function fillResults() {
                 
-    //console.log(dataArray);
     if(dataArray.length > 0)
     {
-        //console.log(dataArray);
         dataArray.sort(compare);
-        //console.log(dataArray);
         for (let index = 0; index < dataArray.length; index++) 
         {
             Allresult.push({"url": dataArray[index].url, "title": dataArray[index].title, "snippet":dataArray[index].snippet});
         }
-        // console.log(Allresult);
-        // console.log(dataArray);
         btnnumbs = Math.ceil(Allresult.length/10);
         minib = [];
         endtime = new Date() - start;
@@ -118,7 +158,6 @@ module.exports = function (app) {
         c = 0;
         //here we loop on each word of the user's input
         FindAndRank(res);
-
     });
     
 
