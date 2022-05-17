@@ -155,10 +155,12 @@ color:#000000d5;
  
 }
 .btns{
-  display: flex;
-  justify-content: center;
   margin-top: 20px;
   margin-bottom: 20px;
+  max-width: 1305px;
+  position: relative;
+  top: 50%;
+  left: 10%;
 }
 .btns a{
   margin-left: 5px;
