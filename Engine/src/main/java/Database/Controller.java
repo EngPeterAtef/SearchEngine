@@ -28,7 +28,7 @@ import java.util.stream.IntStream;
 //FROM Crawler
 import Crawler.Crawler.URLQueue;
 //From Indexer
-import Indexer.Indexer.pair;
+import Indexer.Indexer.triple;
 
 
 public class Controller {
@@ -192,7 +192,7 @@ public class Controller {
         }
         return value;
     }
-    public void indexerone(HashMap<String,HashMap<String,pair>>mymap)
+    public void indexerone(HashMap<String,HashMap<String,triple>>mymap)
     {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
 //        String uri = "mongodb://localhost:27017/SearchEngine";
 //        MongoClient mongo = MongoClients.create(uri);
@@ -201,19 +201,20 @@ public class Controller {
 //        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
 
         Document doc=new Document();
-        for(Map.Entry<String, HashMap<String,pair>> entry : mymap.entrySet())
+        for(Map.Entry<String, HashMap<String,triple>> entry : mymap.entrySet())
         {
             doc.append("_id", new ObjectId());
             doc.append("Word",entry.getKey());
 
             List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
-            for(Map.Entry<String,pair>subentry:entry.getValue().entrySet())
+            for(Map.Entry<String,triple>subentry:entry.getValue().entrySet())
             {
                 BasicDBObject obj = new BasicDBObject();
                 obj.append("URL",subentry.getKey());
                 obj.append("Count",subentry.getValue().count);
                 long pos = convert(subentry.getValue().location);
                 obj.append("locations",pos);
+                obj.append("positions",subentry.getValue().positions);
                 lis.add(obj);
             }
             doc.append("Websites",lis);
@@ -223,30 +224,35 @@ public class Controller {
         }
 
     }
-    public void insertIndexedWord(String word,HashMap <String,pair> siteMap)
+    public void insertIndexedWord(String word,HashMap <String,triple> siteMap)
     {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
 //        String uri = "mongodb://localhost:27017/SearchEngine";
 //        MongoClient mongo = MongoClients.create(uri);
 //        MongoDatabase database = mongo.getDatabase("myData");
 //        //get collection
 //        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+        try {
 
-        Document doc=new Document();
-        doc.append("_id", new ObjectId());
-        doc.append("Word",word);
 
-        List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
-        for(Map.Entry<String,pair>subentry:siteMap.entrySet())
-        {
-            BasicDBObject obj = new BasicDBObject();
-            obj.append("URL",subentry.getKey());
-            obj.append("Count",subentry.getValue().count);
-            long pos = convert(subentry.getValue().location);
-            obj.append("locations",pos);
-            lis.add(obj);
+            Document doc = new Document();
+            doc.append("_id", new ObjectId());
+            doc.append("Word", word);
+
+            List<BasicDBObject> lis = new ArrayList<BasicDBObject>();
+            for (Map.Entry<String, triple> subentry : siteMap.entrySet()) {
+                BasicDBObject obj = new BasicDBObject();
+                obj.append("URL", subentry.getKey());
+                obj.append("Count", subentry.getValue().count);
+                long pos = convert(subentry.getValue().location);
+                obj.append("locations", pos);
+                obj.append("positions", subentry.getValue().positions);
+                lis.add(obj);
+            }
+            doc.append("Websites", lis);
+            indexerCollection.insertOne(doc);
         }
-        doc.append("Websites",lis);
-        indexerCollection.insertOne(doc);
+        catch (org.bson.BsonMaximumSizeExceededException e){
+        }
     }
     public void UpdateVisitedInCollectedData(String url, boolean visited)
     {
