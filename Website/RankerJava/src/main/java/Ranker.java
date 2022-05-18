@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.bson.Document;
+import java.util.ArrayList;
 
 public class Ranker extends HttpServlet {
 
@@ -23,7 +25,7 @@ public class Ranker extends HttpServlet {
 
     public void FindAndRank()
     {
-        doc resultArray = [];
+        ArrayList<Document> resultArray = new ArrayList<Document>();
 
         for (int i = 0; i < ArrayOfquery.length; i++)
         {
@@ -68,11 +70,11 @@ public class Ranker extends HttpServlet {
             String siteResult = await websiteData.find({url: matchingArray[index].url}).exec();
                 if(siteResult[0] != null)
                 {
-                    let str = siteResult[0].body;
-                    for (let i = 0; i < ArrayOfquery.length; i++) {
-                        for (let j = 0; j < resultArray[i][0].Websites.length; j++)
+                    String str = siteResult[0].body;
+                    for (int i = 0; i < ArrayOfquery.length; i++) {
+                        for (int j = 0; j < resultArray[i][0].Websites.length; j++)
                         {
-                            if(matchingArray[index].url === resultArray[i][0].Websites[j].URL)
+                            if(matchingArray[index].url == resultArray[i][0].Websites[j].URL)
                             {
                                 TF = resultArray[i][0].Websites[j].Count / str.length;
                                 TF_IDF += TF * IDF;
@@ -81,7 +83,7 @@ public class Ranker extends HttpServlet {
                         }
                     }
                     // let str = siteResult[0].body;
-                    int indexOFquery = str.search(query);
+                    int indexOFquery = str.indexOf(query);
                     //resultArray[i][0].Websites[index].title = siteResult[0].title;
                     //resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
                     dataArray.push({"url": matchingArray[index].url, "title": siteResult[0].title, "snippet": str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length))});
@@ -102,25 +104,25 @@ public class Ranker extends HttpServlet {
                 }
                 if(resultArray[i].length > 0)
                 {
-                    let IDF = Math.log(5000/resultArray[i][0].Websites.length);
-                    let TF = 0;
-                    let TF_IDF = 0;
-                    let Popularity = 1;
+                    int IDF = Math.log(5000/resultArray[i][0].Websites.length);
+                    int TF = 0;
+                    int TF_IDF = 0;
+                    int Popularity = 1;
                     //get all the websites that has this word
-                    for (let index = 0; index < resultArray[i][0].Websites.length; index++)
+                    for (int index = 0; index < resultArray[i][0].Websites.length; index++)
                     {
                     const siteResult = await websiteData.find({url: resultArray[i][0].Websites[index].URL}).exec();
                         if(siteResult[0] != null)
                         {
-                            let str = siteResult[0].body;
-                            let indexOFquery = str.search(query);
+                            String str = siteResult[0].body;
+                            int indexOFquery = str.search(query);
                             resultArray[i][0].Websites[index].title = siteResult[0].title;
                             resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-                            let alreadyExist = false;
+                            int alreadyExist = false;
                             Popularity =  siteResult[0].popularity;
                             TF = resultArray[i][0].Websites[index].Count / str.length;
                             TF_IDF = TF * IDF;
-                            for (let k = 0; k < dataArray.length; k++) {
+                            for (int k = 0; k < dataArray.length; k++) {
                                 if (dataArray[k].url === resultArray[i][0].Websites[index].URL) {
                                     dataArray[k].count++;
                                     alreadyExist = true;
