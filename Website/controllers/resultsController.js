@@ -5,7 +5,7 @@ let results = require('../models/resultsModel');
 let indexer = require('../models/indexerModel');
 let websiteData = require('../models/websiteDataModel');
 let collectedData = require('../models/collectedDataModel');
-const { db } = require('../models/resultsModel');
+const { db, count } = require('../models/resultsModel');
 let getTitleAtUrl = require('get-title-at-url');
 const cheerio =  require('cheerio');
 const { json } = require('express/lib/response');
@@ -55,9 +55,17 @@ async function FindAndRank(res)
             const siteResult = await collectedData.find({url: resultArray[0][0].Websites[j].URL}).exec();
             if(siteResult[0] != null)
             {
-                if(siteResult[0].html.indexOf(queryString_2)  != -1)
+                let indx;
+                let phraseCount = 0;
+                if(indx = siteResult[0].html.indexOf(queryString_2)  != -1)
                 {
-                    matchingArray.push(resultArray[0][0].Websites[j].URL);
+                    let startIndex = indx;
+                    phraseCount++;
+                    while ((indx = siteResult[0].html.indexOf(queryString_2, startIndex)) > -1) {
+                        phraseCount++;
+                        startIndex = indx + queryString_2.length;
+                    }
+                    matchingArray.push({"url": resultArray[0][0].Websites[j].URL, "phraseCount": phraseCount});
                 }
             }
         }
@@ -67,17 +75,29 @@ async function FindAndRank(res)
         //get all the websites that has this word
         for (let index = 0; index < matchingArray.length; index++) 
         {
-            const siteResult = await websiteData.find({url: matchingArray[index]}).exec();
+            const siteResult = await websiteData.find({url: matchingArray[index].url}).exec();
             if(siteResult[0] != null)
             {
                 let str = siteResult[0].body;
+                for (let i = 0; i < ArrayOfquery.length; i++) {
+                    for (let j = 0; j < resultArray[i][0].Websites.length; j++) 
+                    {
+                        if(matchingArray[index].url === resultArray[i][0].Websites[j].URL)
+                        {
+                            TF = resultArray[i][0].Websites[j].Count / str.length;
+                            TF_IDF += TF * IDF;
+                            console.log(matchingArray[index].url + " "+TF_IDF); 
+                        }
+                    }
+                }
+                    // let str = siteResult[0].body;
                 let indexOFquery = str.search(query);
                 //resultArray[i][0].Websites[index].title = siteResult[0].title;
                 //resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-                dataArray.push({"url": matchingArray[index], "title": siteResult[0].title, "snippet": str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length))});
+                dataArray.push({"url": matchingArray[index].url, "title": siteResult[0].title, "snippet": str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length))});
                 //TF = resultArray[i][0].Websites[index].locations / str.length;
                 //TF_IDF = TF * IDF;
-                dataArray[c].rank =  0;
+                dataArray[c].rank =  TF_IDF + siteResult[0].popularity + matchingArray[index].phraseCount;
                 c++;                   
             }
         }
@@ -106,11 +126,22 @@ async function FindAndRank(res)
                         let indexOFquery = str.search(query);
                         resultArray[i][0].Websites[index].title = siteResult[0].title;
                         resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-                        dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet});
+                        let alreadyExist = false;
                         Popularity =  siteResult[0].popularity;
-                        TF = resultArray[i][0].Websites[index].positions.length / str.length;
+                        TF = resultArray[i][0].Websites[index].Count / str.length;
                         TF_IDF = TF * IDF;
-                        dataArray[index].rank =  TF_IDF * Popularity;
+                        for (let k = 0; k < dataArray.length; k++) {
+                            if (dataArray[k].url === resultArray[i][0].Websites[index].URL) {
+                                dataArray[k].count++;
+                                alreadyExist = true;
+                                dataArray[k].rank +=  TF_IDF + 100;
+                                // console.log(dataArray[k].url + " " + dataArray[k].count);
+                            }
+                        }
+                        if (!alreadyExist) {
+                            dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet, "count": 1});
+                            dataArray[index].rank =  TF_IDF + Popularity;
+                        }
                     }
                 }
             }

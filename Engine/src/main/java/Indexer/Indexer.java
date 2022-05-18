@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 
 
 public class Indexer {
+    PorterStemmer p = new PorterStemmer();
     private static LinkedHashSet<String> allWords = new LinkedHashSet<String>();
     private static LinkedHashSet<String> allWords2 = new LinkedHashSet<String>();
     Controller DBControllerObj = new Controller(true);
@@ -95,11 +96,21 @@ public class Indexer {
 
                     //  Elements selectResult=docs.get(k).getElementsContainingOwnText(aword);
                     int index = 0, count = 0;
+                    int tobegin=0,toend=0;
                     while (true)
                     {
                         index = docs.get(k).indexOf(aword, index);
+
                         if (index != -1)
                         {
+                            tobegin=Math.min(docs.get(k).indexOf(" ", index),docs.get(k).indexOf("<", index));
+                            toend=Math.max(docs.get(k).indexOf(">", index),docs.get(k).indexOf(" ", index));
+                            if(!aword.equals(p.stem(docs.get(k).substring(tobegin, toend))))
+                            {
+
+                                index+=aword.length();
+                                continue;
+                            }
                             temppair.count++;
                             temppair.positions.add(index);
 
@@ -112,7 +123,19 @@ public class Indexer {
                     }
 
                     if(temppair.count!=0)
+                    {
+                        if(temppair.positions.size()!=0)
+                        {
+                            Stack<String>ast=new Stack<String>();
+                            getallparents(k,temppair.positions.get(0),ast);
+                            BitSet allparen=new BitSet(15);
+                            for(String g:ast)
+                                setlocations(g,allparen);
+                            temppair.location=allparen;
+                        }
                         tempo.put(CollectedData.get(k).url, temppair);
+                    }
+
 
 
                 }
@@ -154,7 +177,18 @@ public class Indexer {
         }
     }
 
-
+    static void getallparents(int indexofword,int indexofdoc,Stack<String>sta)
+    {
+        int y=0;
+        while (y<indexofword)
+        {
+            if(tagsList.get(indexofdoc).get(y).tagName.charAt(0)!='/')
+                sta.push(tagsList.get(indexofdoc).get(y).tagName);
+            else if(tagsList.get(indexofdoc).get(y).tagName.charAt(0)=='/')
+                sta.pop();
+            y++;
+        }
+    }
 
     static void setlocations(String mytag, BitSet locations) {
         switch (mytag) {
@@ -299,7 +333,7 @@ public class Indexer {
             }
 
 
-            PorterStemmer p = new PorterStemmer();
+
 
             Iterator itery = allWords2.iterator();
 

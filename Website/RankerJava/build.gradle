@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'javax.servlet:servlet-api:2.5'
+    implementation 'com.github.roughy.http.util:HttpServletRequestX:0.1'
+    implementation 'com.englishtown.vertx:vertx-httpservlet:2.2.1'
+    implementation 'com.englishtown:vertx-mod-httpservlet:0.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+test {
+    useJUnitPlatform()
+}
