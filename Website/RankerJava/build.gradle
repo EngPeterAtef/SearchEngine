@@ -18,6 +18,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     implementation 'org.mongodb:mongodb-driver-sync:4.5.0'
+    implementation 'org.apache.opennlp:opennlp-tools:1.9.4'
+
 }
 
 test {

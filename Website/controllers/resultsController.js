@@ -108,7 +108,7 @@ async function FindAndRank(res)
         {
             if(resultArray.length <= i)
             {
-                return
+                return;
             }       
             if(resultArray[i].length > 0)
             {
