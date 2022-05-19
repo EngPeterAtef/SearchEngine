@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="stylesheet" href="/assets/resStyle.css">
-    <link rel="stylesheet" href="/assets/search.css">
+    <link rel="stylesheet" th:href="@{/assets/resStyle.css}">
+    <link rel="stylesheet" th:href="@{/assets/searchStyle.css}">
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
     <!-- <script src="jquery-3.6.0.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -41,12 +41,12 @@
         </nav>
 
 
-        <!-- <span  id="TakenTime">About <%=dataFound %> results ( <%= endtime/1000.0 %> seconds )</span>
+        <!-- <span  id="TakenTime">About <%=dataFound %> results ( <%= endtime/1000.0 %> seconds )</span> -->
         <div class="content">
             <div class="results">
-                <h1 class="res_tit">Results</h2>
+                <h1 class="res_tit">Results</h1>
                     <div class="link-card"></div>
-                        <%minib.forEach(blog=>{%>
+                        <!-- <%minib.forEach(blog=>{%>
                             <div class="cont">
                                 <span id="resLink"><%=blog.url.substring(0, 100)%>... </span>
                                 <h3 class="in-tit">
@@ -54,18 +54,26 @@
                                 </h3>
                                 <p class="in-sum"><%=blog.snippet.toLowerCase().replace(word,"<span id=\"boldedWord\"> " + word + " </span>") %>... </p>
                             </div>
-                            <%});%>
+                            <%});%> -->
+                            <div class="cont" th:each="result : ${results}">
+                                <span id="resLink" th:text="${result.url}"></span>
+                                <h3 class="in-tit">
+                                    <a th:href="${result.url}" th:text="${result.title}"></a>
+                                </h3>
+                                <p class="in-sum" th:text="${result.snippet}"></p>
+                            </div >
+                            <!-- <p th:text="${query}">3</p> -->
 
                             
             </div>
-            <div class="btns">
+            <!-- <div class="btns">
                 <% for(let i=1;i<=btnnumbs;i++){%>
                     <a href="/results/<%= word%>/<%= i%>" class="bb"><%=i%> </a>
                 <%}%>
-            </div>
-        </div> -->
+            </div> -->
+        </div>
     </div>
-    <script src="/assets/results.js"></script>
-    <script src="/assets/search.js"></script>
+   <script th:src="@{/assets/resultsScript.js}"></script>
+   <script th:src="@{/assets/searchScript.js}"></script>
 </body>
 </html>

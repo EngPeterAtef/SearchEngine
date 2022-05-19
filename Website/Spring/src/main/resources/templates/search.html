@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search</title>
     <!--local style-->
-    <link rel="stylesheet" href="search.css">
+    <link rel="stylesheet" th:href="@{/assets/searchStyle.css}">
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
     
     <!--Bootswatch-->
@@ -43,7 +43,7 @@
     </footer>
     
     <!--Script-->
-    <script src="search.js"></script>
+    <script type="text/javascript" th:src="@{/assets/searchScript.js}"></script>
     <!-- MDB -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.js"></script>
 </body>
