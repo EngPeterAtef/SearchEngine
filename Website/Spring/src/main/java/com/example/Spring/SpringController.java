@@ -38,14 +38,18 @@ public class SpringController {
     //------------SEARCHING-----------
     @RequestMapping(value="/results/{query}", method = RequestMethod.GET)
     public String search(Model model, @PathVariable(value = "query") String query) {
+        long startTime = System.nanoTime();
         ArrayOfquery = query.split(" ");
         c = 0;
         dataArray.clear();
         matchingArray.clear();
         FindAndRank(query);
+        long endTime   = System.nanoTime();
+        float totalTime = (float) ((endTime-startTime)/1000000000.0);
 //        String ResultsPage = "<!doctype html> <html><body align=\"center\">"+ dataArray +"</body></html>";
         model.addAttribute("query", query);
         model.addAttribute("results", dataArray);
+        model.addAttribute("time",totalTime );
         return "results";
 //			ModelAndView modelAndView = new ModelAndView();
 //			modelAndView.setViewName("results.html");
@@ -157,13 +161,13 @@ public class SpringController {
                     for (int index = 0; index < resultArray.get(i).getList("Websites", Document.class).size(); index++)
                     {
                         Document siteResult = dbController.GetSiteFromWebsiteData(resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL"));
-                        System.out.println(siteResult);
+//                        System.out.println(siteResult);
                         if(siteResult != null)
                         {
                             String str = siteResult.getString("body");
                             int indexOFquery = str.indexOf(query);
                             resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("title",siteResult.getString("title")));
-                            resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length() + 300,str.length()))));
+                            resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length() + 300,str.length())).toLowerCase().replaceAll(query,"<span id=\"boldedWord\"> " + query + " </span>")));
                             boolean alreadyExist = false;
                             Popularity =  siteResult.getInteger("popularity");
                             TF = resultArray.get(i).getList("Websites", Document.class).get(index).getInteger("Count") / (double)str.length();
@@ -191,7 +195,7 @@ public class SpringController {
                                 dataArray.add(new Document().append("url",added_url).append("title",added_title).append("snippet",added_snippet).append("count",added_count).append("rank",Popularity + TF_IDF));
                                 //dataArray[index].rank =  TF_IDF + Popularity;
                                 //double oldrank = dataArray.get(index).getDouble("rank");
-//								dataArray.set(index,dataArray.get(index).append("rank",Popularity + TF_IDF));
+								//dataArray.set(index,dataArray.get(index).append("rank",Popularity + TF_IDF));
                             }
                         }
                     }

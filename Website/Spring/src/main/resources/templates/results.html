@@ -19,7 +19,7 @@
     <div class="App">
         <nav class="navbar">
             <h1 class="logo">
-                <a href="http://localhost:3000/search" style="text-decoration: none;">
+                <a href="http://localhost:8080" style="text-decoration: none;">
                     <span style="color: #4285F4">N</span><span style="color: red">o</span><span style="color: orange">o</span><span style="color: #4285F4">d</span><span style="color: green">l</span><span style="color: red">e</span>
                 </a>
                 
@@ -28,7 +28,7 @@
             <form>
                 <div class="searchBox">
                     <button type="submit" id="searchBtn"> <i class="fa fa-magnifying-glass"></i></button>
-                    <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off" value="">
+                    <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off" th:value="${query}">
                     <div>
                         <button type="button"> <i class="fa-solid fa-xmark" id="x"></i></button>
                         <button type="button"> <i class="fa fa-microphone" id="voiceRec"></i></button>
@@ -41,7 +41,7 @@
         </nav>
 
 
-        <!-- <span  id="TakenTime">About <%=dataFound %> results ( <%= endtime/1000.0 %> seconds )</span> -->
+        <span  id="TakenTime" >About <span th:text="${#lists.size(results)}"></span> results ( <span th:text="${time}"></span> second)</span>
         <div class="content">
             <div class="results">
                 <h1 class="res_tit">Results</h1>
