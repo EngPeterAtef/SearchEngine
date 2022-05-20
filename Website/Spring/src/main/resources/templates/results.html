@@ -9,13 +9,18 @@
     <link rel="stylesheet" th:href="@{/assets/resStyle.css}">
     <link rel="stylesheet" th:href="@{/assets/searchStyle.css}">
     <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
-    <!-- <script src="jquery-3.6.0.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <title>Results</title>
 </head>
 
 <body>
-    <!-- <script src="../assets/results.js"></script> -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            var resultsFromSpring = /*[[${results}]]*/ 'default';
+            var buttonsNumber = /*[[${btns}]]*/ 'default';
+        /*]]>*/
+    </script>
     <div class="App">
         <nav class="navbar">
             <h1 class="logo">
@@ -45,41 +50,22 @@
         <div class="content">
             <div class="results">
                 <h1 class="res_tit">Results</h1>
-                    <div class="link-card"></div>
-                        <!-- <%minib.forEach(blog=>{%>
-                            <div class="cont">
-                                <span id="resLink"><%=blog.url.substring(0, 100)%>... </span>
-                                <h3 class="in-tit">
-                                    <a href="<%=blog.url%>"><%=blog.title%></a>
-                                </h3>
-                                <p class="in-sum"><%=blog.snippet.toLowerCase().replace(word,"<span id=\"boldedWord\"> " + word + " </span>") %>... </p>
-                            </div>
-                            <%});%> -->
-                            <div class="cont" th:each="result : ${results}">
-                                <span id="resLink" th:text="${result.url}"></span>
-                                <h3 class="in-tit">
-                                    <a th:href="${result.url}" th:text="${result.title}"></a>
-                                </h3>
-                                <p class="in-sum" th:text="${result.snippet}"></p>
-                            </div >
-                            <!-- <p th:text="${query}">3</p> -->
-
-                            
+                <div id="results-card" class="link-card"></div>
+                    <!-- <div class="cont">
+                        <span id="resLink" th:text="${result.url}"></span>
+                        <h3 class="in-tit">
+                            <a th:href="${result.url}" th:text="${result.title}"></a>
+                        </h3>
+                        <p class="in-sum" th:text="${result.snippet}"></p>
+                    </div > -->
+                    <!-- <p th:text="${query}">3</p>           -->
             </div >
-            <!-- <div class="btns">
-                <% for(let i=1;i<=btnnumbs;i++){%>
-                    <a href="/results/<%= word%>/<%= i%>" class="bb"><%=i%> </a>
-                <%}%>
-            </div> -->
-                <div class="btns" style="text-align: center;margin-top: 20px;margin-bottom: 20px;max-width: 1305px;position: relative;top: 50%">
-                    <th   th:each="i : ${#numbers.sequence( 1, 100)}">
+                <div id="buttons" class="btns" style="text-align: center;margin-top: 20px;margin-bottom: 20px;max-width: 1305px;position: relative;top: 50%">
+                    <!-- <th   th:each="i : ${#numbers.sequence( 1, 100)}">
                         <a class="bb" href="#" th:text="${ i }"></a>
-                    </th>
+                    </th> -->
                 </div>
-
             </div>
-
-
     </div>
    <script th:src="@{/assets/resultsScript.js}"></script>
    <script th:src="@{/assets/searchScript.js}"></script>

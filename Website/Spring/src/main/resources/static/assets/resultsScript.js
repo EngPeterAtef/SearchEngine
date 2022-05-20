@@ -1,27 +1,37 @@
-// $(document).ready(function(){
-//     let fullPath = window.location.pathname;
-//     let fullPathArr = fullPath.split('/');
-//     $('#searchWord').attr('value', fullPathArr[1]);
-
-//     // //Get results
-//     // $.ajax({
-//     //     type: 'GET',
-//     //     url: window.location.pathname,
-//     //     data:{"index": 1},
-//     //     //here we receive the results
-//     //     success: function(data){
-//     //     //console.log(data);
-//     //     //   window.location.assign('/results/'+typed.val());
-//     //     }
-//     // });
-// });
-let results = document.querySelectorAll(`.in-sum`);
-
-if(results !="")
-{
-    let typed = document.getElementById(`searchWord`).value.toLowerCase();
-    results.forEach(result => {
-        let para = result.innerText;
-        result.innerHTML = para;
-    });
-}
+$(document).ready(function(){
+    function changePage() {
+        $('#results-card').empty();
+        pageNum = parseInt($(this).attr('id'));
+        const pageSize = 10;
+        if (resultsFromSpring != null) {
+            console.log(pageNum * pageSize);
+            console.log(resultsFromSpring.length);
+            let pageContent = resultsFromSpring.slice((pageNum - 1) * pageSize, Math.min(pageNum * pageSize, resultsFromSpring.length));
+            for (let i = 0; i < pageContent.length; i++) {
+                $('#results-card').append(`
+                    <div class="cont">
+                    <span id="resLink">${pageContent[i].url}</span>
+                    <h3 class="in-tit">
+                        <a href="${pageContent[i].url}">${pageContent[i].title}</a>
+                    </h3>
+                    <p class="in-sum">${pageContent[i].snippet}</p>
+                </div >`);
+            }
+            let results = document.querySelectorAll(`.in-sum`);
+            if(results !="")
+            {
+                let typed = document.getElementById(`searchWord`).value.toLowerCase();
+                results.forEach(result => {
+                    let para = result.innerText;
+                    result.innerHTML = para;
+                });
+            }
+        }
+        $(window).scrollTop(0);
+    }
+    for (let i = 0; i < buttonsNumber; i++) {
+        $('#buttons').append(`<a id="${i+1}" class="bb">${i+1}</a>`);
+        $(`#${i+1}`).click(changePage);
+    }
+    $('#1').trigger("click");
+});
