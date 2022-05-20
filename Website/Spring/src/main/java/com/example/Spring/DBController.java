@@ -105,8 +105,8 @@ public class DBController {
                     result.add(doc);
                 }
             }
-//            for (URLQueue queue : urlQueue) {
-//                System.out.println(queue.url);
+//            for (Document doc : result) {
+//                System.out.println(result.url);
 //            }
         } catch (MongoException me) {
             System.err.println("Unable to sort data due to an error: " + me);

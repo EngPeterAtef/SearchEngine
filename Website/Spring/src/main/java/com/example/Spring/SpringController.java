@@ -47,6 +47,7 @@ public class SpringController {
         dataArray.clear();
         matchingArray.clear();
         FindAndRank(query);
+        dataArray = dbController.SortDocuments(dataArray);
         btnNumber = (int) Math.ceil(dataArray.size()/10.0);
         long endTime   = System.nanoTime();
         float totalTime = (float) ((endTime-startTime)/1000000000.0);
@@ -122,6 +123,7 @@ public class SpringController {
                 double IDF = Math.log(5000.0 / matchingArray.size());
                 double TF = 0;
                 double TF_IDF = 0;
+                long tags = 0;
                 //get all the websites that has this word
                 for (int index = 0; index < matchingArray.size(); index++) {
                     Document siteResult = dbController.GetSiteFromWebsiteData(matchingArray.get(index).getString("url"));
@@ -130,7 +132,9 @@ public class SpringController {
                         for (int i = 0; i < ArrayOfquery.length; i++) {
                             for (int j = 0; j < resultArray.get(i).getList("Websites", Document.class).size(); j++) {
                                 if (matchingArray.get(index).getString("url").equals(resultArray.get(i).getList("Websites", Document.class).get(j).getString("URL"))) {
-                                    TF = resultArray.get(i).getList("Websites", Document.class).get(j).getInteger("Count") / (double) str.length();
+                                    TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF");
+                                    tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags");
+                                    tags = (long)(Math.log(tags) / Math.log(2));
                                     TF_IDF += TF * IDF;
                                     //								System.out.println(matchingArray.get(index).getString("url") + " " + TF_IDF);
                                 }
@@ -143,7 +147,7 @@ public class SpringController {
                         dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", str.substring(Math.max(0, indexOFquery - 200), Math.min(indexOFquery + query.length() + 300, str.length()))));
                         //TF = resultArray[i][0].Websites[index].locations / str.length;
                         //TF_IDF = TF * IDF;
-                        dataArray.set(c, dataArray.get(c).append("rank", TF_IDF + siteResult.getInteger("popularity") + matchingArray.get(index).getInteger("phraseCount")));
+                        dataArray.set(c, dataArray.get(c).append("rank", tags + TF_IDF + siteResult.getInteger("popularity") + matchingArray.get(index).getInteger("phraseCount")));
                         c++;
                     }
                 }
@@ -160,9 +164,10 @@ public class SpringController {
                 }
                 if(resultArray.get(i).size() > 0)
                 {
-                    double IDF = Math.log(5000.0/resultArray.get(i).getList("Websites", Document.class).size());
+                    double IDF = resultArray.get(i).getDouble("IDF");
                     double TF = 0;
                     double TF_IDF = 0;
+                    long tags = 0;
                     int Popularity = 1;
                     //get all the websites that has this word
                     for (int index = 0; index < resultArray.get(i).getList("Websites", Document.class).size(); index++)
@@ -178,7 +183,9 @@ public class SpringController {
 
                             boolean alreadyExist = false;
                             Popularity =  siteResult.getInteger("popularity");
-                            TF = resultArray.get(i).getList("Websites", Document.class).get(index).getInteger("Count") / (double)str.length();
+                            TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF");
+                            tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags");
+                            tags = (long)(Math.log(tags) / Math.log(2));
                             TF_IDF = TF * IDF;
                             for (int k = 0; k < dataArray.size(); k++) {
                                 if (dataArray.get(k).getString("url").equals(resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL")) ) {
@@ -200,7 +207,7 @@ public class SpringController {
                                 String added_title = web_site.getString("title");
                                 String added_snippet = web_site.getString("snippet");
                                 String added_count = web_site.getString("count");
-                                dataArray.add(new Document().append("url",added_url).append("title",added_title).append("snippet",added_snippet).append("count",added_count).append("rank",Popularity + TF_IDF));
+                                dataArray.add(new Document().append("url",added_url).append("title",added_title).append("snippet",added_snippet).append("count",added_count).append("rank", Popularity + 1000 * TF_IDF + tags));
                                 //dataArray[index].rank =  TF_IDF + Popularity;
                                 //double oldrank = dataArray.get(index).getDouble("rank");
 								//dataArray.set(index,dataArray.get(index).append("rank",Popularity + TF_IDF));

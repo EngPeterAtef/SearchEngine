@@ -494,22 +494,22 @@ public class Indexer {
 
             Indexer indexerObj = new Indexer();
 
-//            CollectedData = indexerObj.DBControllerObj.GetCollectedData();
-//            if (CollectedData != null){
-//                System.out.println(CollectedData.size());
-//            }
-//            else {
-//                System.out.println("Null");
-//            }
+            CollectedData = indexerObj.DBControllerObj.GetCollectedData();
+            if (CollectedData != null){
+                System.out.println(CollectedData.size());
+            }
+            else {
+                System.out.println("Null");
+            }
             //-----------------------------------------
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             // create a reader
-          Reader reader = Files.newBufferedReader(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/CollectedData.json"));
+//          Reader reader = Files.newBufferedReader(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/CollectedData.json"));
 
 
-          CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {}.getType());// array of json objects websites
-            reader.close();
+//          CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {}.getType());// array of json objects websites
+//            reader.close();
             // array of stop wordss
             stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
