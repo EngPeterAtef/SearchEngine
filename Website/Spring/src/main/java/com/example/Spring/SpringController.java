@@ -16,6 +16,7 @@ public class SpringController {
     String[] ArrayOfquery;
     int c;
     String query;
+    int btnNumber = 0;
     //	String queryString;
     PorterStemmer p = new PorterStemmer();
     ArrayList<Document> matchingArray = new ArrayList<Document>();
@@ -41,15 +42,18 @@ public class SpringController {
         long startTime = System.nanoTime();
         ArrayOfquery = query.split(" ");
         c = 0;
+        btnNumber = 0;
         dataArray.clear();
         matchingArray.clear();
         FindAndRank(query);
+        btnNumber = (int) Math.ceil(dataArray.size()/10.0);
         long endTime   = System.nanoTime();
         float totalTime = (float) ((endTime-startTime)/1000000000.0);
 //        String ResultsPage = "<!doctype html> <html><body align=\"center\">"+ dataArray +"</body></html>";
         model.addAttribute("query", query);
         model.addAttribute("results", dataArray);
         model.addAttribute("time",totalTime );
+        model.addAttribute("btns",btnNumber );
         return "results";
 //			ModelAndView modelAndView = new ModelAndView();
 //			modelAndView.setViewName("results.html");
