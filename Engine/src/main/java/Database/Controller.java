@@ -216,7 +216,7 @@ doc.append("IDF",Math.log(webNum/entry.getValue().size()));
                 obj.append("Tags",pos);
                 obj.append("TF",subentry.getValue().TF);
                 lis.add(obj);
-            }
+            }//
             doc.append("Websites",lis);
 
             indexerCollection.insertOne(doc);

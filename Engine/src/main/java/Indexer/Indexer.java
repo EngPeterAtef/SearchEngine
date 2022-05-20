@@ -510,7 +510,7 @@ public class Indexer {
 
           CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {}.getType());// array of json objects websites
             reader.close();
-            // array of stop words
+            // array of stop wordss
             stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
 
