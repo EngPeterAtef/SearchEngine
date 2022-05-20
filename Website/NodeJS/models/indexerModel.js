@@ -8,7 +8,7 @@ let mongoose=require('mongoose');
 // //this is not our schema yet..
 let indexerSchema = new mongoose.Schema({
     Word: String,
-    Websites: [{ URL: String,Count: Number, locations: Number }]
+    Websites: [{ URL: String,Count: Number, locations: Number, positions: [] }]
 }, {collection: "Indexed_documents"});
 
 // //create a model based on this schema

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <!--local style-->
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
+    
+    <!--Bootswatch-->
+    <!-- <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css"> -->
+    <!--Jquery-->
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+    </header>
+    <section >
+        <div class="main">
+                <h1 id="PageName">
+                        <span style="color: #4285F4">N</span><span style="color: red">o</span><span style="color: orange">o</span><span style="color: #4285F4">d</span><span style="color: green">l</span><span style="color: red">e</span>
+                </h1>
+                <form action="search" method="GET" id="search">
+                    <div class="searchBox">
+                        <button type="submit" id="searchBtn"> <i class="fa fa-magnifying-glass"></i></button>
+                        <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off">
+                        <div>
+                            <button type="button"> <i class="fa-solid fa-xmark" id="x"></i></button>
+                            <button type="button" > <i class="fa fa-microphone" id="voiceRec"></i></button>
+                        </div>
+                    </div>
+                    <hr>
+                    <ul>
+                    </ul>
+                </form>
+                
+        </div>
+    </section>
+    <footer>
+    </footer>
+    
+    <!--Script-->
+    <script src="js/search.js"></script>
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.js"></script>
+</body>
+</html>

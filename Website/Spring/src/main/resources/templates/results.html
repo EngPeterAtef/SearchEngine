@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" th:href="@{/assets/resStyle.css}">
+    <link rel="stylesheet" th:href="@{/assets/searchStyle.css}">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v6.1.0/css/all.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Results</title>
+</head>
+
+<body>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            var resultsFromSpring = /*[[${results}]]*/ 'default';
+            var buttonsNumber = /*[[${btns}]]*/ 'default';
+        /*]]>*/
+    </script>
+    <div class="App">
+        <nav class="navbar">
+            <h1 class="logo">
+                <a href="http://localhost:8080" style="text-decoration: none;">
+                    <span style="color: #4285F4">N</span><span style="color: red">o</span><span style="color: orange">o</span><span style="color: #4285F4">d</span><span style="color: green">l</span><span style="color: red">e</span>
+                </a>
+                
+            </h1>
+            <!--  -->
+            <form>
+                <div class="searchBox">
+                    <button type="submit" id="searchBtn"> <i class="fa fa-magnifying-glass"></i></button>
+                    <input type="text" id="searchWord" class="search" placeholder="search" autocomplete="off" th:value="${query}">
+                    <div>
+                        <button type="button"> <i class="fa-solid fa-xmark" id="x"></i></button>
+                        <button type="button"> <i class="fa fa-microphone" id="voiceRec"></i></button>
+                    </div>
+                </div>
+                <hr>
+                <ul>
+                </ul>
+            </form>
+        </nav>
+
+
+        <span  id="TakenTime" >About <span th:text="${#lists.size(results)}"></span> results (<span th:text="${time}"></span> seconds)</span>
+        <div class="content">
+            <div class="results">
+                <h1 class="res_tit">Results</h1>
+                <div id="results-card" class="link-card"></div>
+                    <!-- <div class="cont">
+                        <span id="resLink" th:text="${result.url}"></span>
+                        <h3 class="in-tit">
+                            <a th:href="${result.url}" th:text="${result.title}"></a>
+                        </h3>
+                        <p class="in-sum" th:text="${result.snippet}"></p>
+                    </div > -->
+                    <!-- <p th:text="${query}">3</p>           -->
+            </div >
+                <div id="buttons" class="btns" style="text-align: center;margin-top: 20px;margin-bottom: 20px;max-width: 1305px;position: relative;top: 50%">
+                    <!-- <th   th:each="i : ${#numbers.sequence( 1, 100)}">
+                        <a class="bb" href="#" th:text="${ i }"></a>
+                    </th> -->
+                </div>
+            </div>
+    </div>
+   <script th:src="@{/assets/resultsScript.js}"></script>
+   <script th:src="@{/assets/searchScript.js}"></script>
+</body>
+</html>
