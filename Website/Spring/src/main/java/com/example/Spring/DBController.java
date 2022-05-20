@@ -4,6 +4,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -90,5 +91,26 @@ public class DBController {
         } catch (MongoException me) {
             System.err.println("Unable to increment suggestion due to an error: " + me);
         }
+    }
+    public ArrayList<Document> SortDocuments(ArrayList<Document> data){
+        MongoCollection<Document> sortCollection = database.getCollection("sort");
+        sortCollection.deleteMany(new Document());
+        sortCollection.insertMany(data);
+        ArrayList<Document> result = null;
+        try (MongoCursor<Document> cursor = sortCollection.find().sort(Sorts.descending("rank")).iterator()){
+            if(cursor.hasNext()) {
+                result = new ArrayList<>();
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    result.add(doc);
+                }
+            }
+//            for (URLQueue queue : urlQueue) {
+//                System.out.println(queue.url);
+//            }
+        } catch (MongoException me) {
+            System.err.println("Unable to sort data due to an error: " + me);
+        }
+        return result;
     }
 }

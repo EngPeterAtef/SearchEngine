@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,10 +50,12 @@ public class SpringController {
         btnNumber = (int) Math.ceil(dataArray.size()/10.0);
         long endTime   = System.nanoTime();
         float totalTime = (float) ((endTime-startTime)/1000000000.0);
+        DecimalFormat df = new DecimalFormat("#.###");
+        ;
 //        String ResultsPage = "<!doctype html> <html><body align=\"center\">"+ dataArray +"</body></html>";
         model.addAttribute("query", query);
         model.addAttribute("results", dataArray);
-        model.addAttribute("time",totalTime );
+        model.addAttribute("time",Float.parseFloat(df.format(totalTime))  );
         model.addAttribute("btns",btnNumber );
         return "results";
 //			ModelAndView modelAndView = new ModelAndView();
@@ -172,6 +175,7 @@ public class SpringController {
                             int indexOFquery = str.indexOf(query);
                             resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("title",siteResult.getString("title")));
                             resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length() + 300,str.length())).toLowerCase().replaceAll(query,"<span id=\"boldedWord\"> " + query + " </span>")));
+
                             boolean alreadyExist = false;
                             Popularity =  siteResult.getInteger("popularity");
                             TF = resultArray.get(i).getList("Websites", Document.class).get(index).getInteger("Count") / (double)str.length();

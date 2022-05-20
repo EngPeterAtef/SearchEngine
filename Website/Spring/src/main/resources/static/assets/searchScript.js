@@ -103,6 +103,7 @@ $(document).ready(function(){
     content+=' ';
     textbox.val(content);
     recognition.stop();
+    $('#searchBtn').trigger('click');
     mic.css("color", "#808080");
   }
   $("#voiceRec").click(function(event) {
@@ -122,6 +123,7 @@ $(document).ready(function(){
             {
               active++;
               sugg[active].focus();
+              consol.log(active);
             }
           }
           else if(keycode == '38') {
@@ -130,6 +132,7 @@ $(document).ready(function(){
               
               sugg[active].focus();
               active--;
+              consol.log(active);
             }
           }
     });

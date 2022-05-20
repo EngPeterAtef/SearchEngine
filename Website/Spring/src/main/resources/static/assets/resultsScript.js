@@ -1,4 +1,5 @@
 $(document).ready(function(){
+
     function changePage() {
         $('#results-card').empty();
         pageNum = parseInt($(this).attr('id'));
@@ -17,21 +18,23 @@ $(document).ready(function(){
                     <p class="in-sum">${pageContent[i].snippet}</p>
                 </div >`);
             }
-            let results = document.querySelectorAll(`.in-sum`);
-            if(results !="")
-            {
-                let typed = document.getElementById(`searchWord`).value.toLowerCase();
-                results.forEach(result => {
-                    let para = result.innerText;
-                    result.innerHTML = para;
-                });
-            }
+
         }
+
         $(window).scrollTop(0);
     }
-    for (let i = 0; i < buttonsNumber; i++) {
-        $('#buttons').append(`<a id="${i+1}" class="bb">${i+1}</a>`);
-        $(`#${i+1}`).click(changePage);
+    let results = document.querySelectorAll(`.in-sum`);
+                if(results !="")
+                {
+                    let typed = document.getElementById(`searchWord`).value.toLowerCase();
+                    results.forEach(result => {
+                        let para = result.innerText;
+                        result.innerHTML = para;
+                    });
+                }
+    for (let i = 1; i <= buttonsNumber; i++) {
+        $('#buttons').append(`<a id="${i}" class="bb">${i}</a>`);
+        $(`#${i}`).click(changePage);
     }
     $('#1').trigger("click");
 });
