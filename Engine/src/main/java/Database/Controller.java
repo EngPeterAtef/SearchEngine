@@ -192,7 +192,7 @@ public class Controller {
         }
         return value;
     }
-    public void indexerone(HashMap<String,HashMap<String,triple>>mymap)
+    public void indexerone(HashMap<String,HashMap<String,triple>>mymap,Integer webNum)
     {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
 //        String uri = "mongodb://localhost:27017/SearchEngine";
 //        MongoClient mongo = MongoClients.create(uri);
@@ -205,7 +205,7 @@ public class Controller {
         {
             doc.append("_id", new ObjectId());
             doc.append("Word",entry.getKey());
-
+doc.append("IDF",Math.log(webNum/entry.getValue().size()));
             List<BasicDBObject>lis=new ArrayList<BasicDBObject>();
             for(Map.Entry<String,triple>subentry:entry.getValue().entrySet())
             {
@@ -213,8 +213,8 @@ public class Controller {
                 obj.append("URL",subentry.getKey());
                 obj.append("Count",subentry.getValue().count);
                 long pos = convert(subentry.getValue().location);
-                obj.append("locations",pos);
-                obj.append("positions",subentry.getValue().positions);
+                obj.append("Tags",pos);
+                obj.append("TF",subentry.getValue().TF);
                 lis.add(obj);
             }
             doc.append("Websites",lis);
@@ -224,36 +224,36 @@ public class Controller {
         }
 
     }
-    public void insertIndexedWord(String word,HashMap <String,triple> siteMap)
-    {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
-//        String uri = "mongodb://localhost:27017/SearchEngine";
-//        MongoClient mongo = MongoClients.create(uri);
-//        MongoDatabase database = mongo.getDatabase("myData");
-//        //get collection
-//        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
-        try {
-
-
-            Document doc = new Document();
-            doc.append("_id", new ObjectId());
-            doc.append("Word", word);
-
-            List<BasicDBObject> lis = new ArrayList<BasicDBObject>();
-            for (Map.Entry<String, triple> subentry : siteMap.entrySet()) {
-                BasicDBObject obj = new BasicDBObject();
-                obj.append("URL", subentry.getKey());
-                obj.append("Count", subentry.getValue().count);
-                long pos = convert(subentry.getValue().location);
-                obj.append("locations", pos);
-                obj.append("positions", subentry.getValue().positions);
-                lis.add(obj);
-            }
-            doc.append("Websites", lis);
-            indexerCollection.insertOne(doc);
-        }
-        catch (org.bson.BsonMaximumSizeExceededException e){
-        }
-    }
+//    public void insertIndexedWord(String word,HashMap <String,triple> siteMap)
+//    {//mongodb+srv://doaa:mbm@cluster0.zu6vd.mongodb.net/myData?retryWrites=true&w=majority
+////        String uri = "mongodb://localhost:27017/SearchEngine";
+////        MongoClient mongo = MongoClients.create(uri);
+////        MongoDatabase database = mongo.getDatabase("myData");
+////        //get collection
+////        MongoCollection<org.bson.Document> collection = database.getCollection("Indexed_documents");
+//        try {
+//
+//
+//            Document doc = new Document();
+//            doc.append("_id", new ObjectId());
+//            doc.append("Word", word);
+//
+//            List<BasicDBObject> lis = new ArrayList<BasicDBObject>();
+//            for (Map.Entry<String, triple> subentry : siteMap.entrySet()) {
+//                BasicDBObject obj = new BasicDBObject();
+//                obj.append("URL", subentry.getKey());
+//                obj.append("Count", subentry.getValue().count);
+//                long pos = convert(subentry.getValue().location);
+//                obj.append("locations", pos);
+//                obj.append("positions", subentry.getValue().positions);
+//                lis.add(obj);
+//            }
+//            doc.append("Websites", lis);
+//            indexerCollection.insertOne(doc);
+//        }
+//        catch (org.bson.BsonMaximumSizeExceededException e){
+//        }
+//    }
     public void UpdateVisitedInCollectedData(String url, boolean visited)
     {
         Document query = new Document().append("url",  url);
