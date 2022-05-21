@@ -95,8 +95,10 @@ public class SpringController {
                 resultArray.add(wordDoc);
             }
         }
-        if (queryString.charAt(0) == '"' && queryString.charAt(queryString.length() - 1) == '"') {
-            String queryString_2 = queryString.replaceAll("\"", "");
+        //--------------------Phrase searching-----------------
+        if (queryString.charAt(0) == '"' && queryString.charAt(queryString.length() - 1) == '"')
+        {
+            String queryString_2 = queryString.replaceAll("\"", ""); //remove quotations
             if (!resultArray.isEmpty()){
                 for (int j = 0; j < resultArray.get(0).getList("Websites", Document.class).size(); j++) // loop on each url in the first word
                 {
@@ -133,20 +135,19 @@ public class SpringController {
                             }
                         TF = matchingArray.get(index).getInteger("phraseCount");
                         TF_IDF = TF * IDF;
-
-
                         double rank = tags + TF_IDF*10000 + siteResult.getInteger("popularity");
                         int indexOFquery = str.indexOf(queryString_2);
                         String snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + queryString_2.length() + 350,str.length())).replaceAll(queryString_2,"<span id=\"boldedWord\"> " + queryString_2.toLowerCase() + " </span>");
                         dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", snippet).append("rank", rank));
-                        //System.out.println(matchingArray.get(index).getString("url") + " -- TF-IDF :" + TF_IDF + " -- Tags : "+tags + " -- Rank : " + rank);
 
                     }
                 }
             }
         }
+        //--------------------Query processor-----------------
         else
         {
+            //loop on each word of the query
             for (int i = 0; i < ArrayOfquery.length; i++)
             {
                 if(resultArray.size() <= i)
@@ -155,7 +156,7 @@ public class SpringController {
                 }
                 if(resultArray.get(i).size() > 0)
                 {
-                    double IDF = resultArray.get(i).getDouble("IDF");
+                    double IDF = resultArray.get(i).getDouble("IDF"); // getting IDF from indexer database
                     double TF = 0;
                     double TF_IDF = 0;
                     long tags = 0;
@@ -163,8 +164,9 @@ public class SpringController {
                     //get all the websites that has this word
                     for (int index = 0; index < resultArray.get(i).getList("Websites", Document.class).size(); index++)
                     {
-                        Document siteResult = dbController.GetSiteFromWebsiteData(resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL"));
-                        //System.out.println(siteResult);
+                        String current_url = resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL");
+                        //getting the data (body,title) of the current website
+                        Document siteResult = dbController.GetSiteFromWebsiteData(current_url);
                         if(siteResult != null)
                         {
                             String str = siteResult.getString("body");
@@ -187,13 +189,11 @@ public class SpringController {
                             resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",snippet));
 
                             boolean alreadyExist = false;
-                            Popularity =  siteResult.getInteger("popularity");
-                            TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF");
-                            tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags");
+                            Popularity =  siteResult.getInteger("popularity"); // getting popularity from websiteData database
+                            TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF"); // getting TF from indexer database
+                            tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags"); // getting tags from indexer database
                             TF_IDF = TF * IDF;
-                            //System.out.println(siteResult.getString("url")+" : "+10000* TF_IDF+"  " +tags);
-                            String current_url = resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL");
-                            if (ArrayOfquery.length > 1)
+                            if (ArrayOfquery.length > 1) //if there is more than one word check if this website was visited by another word of the query
                             {
                                 for (int k = 0; k < dataArray.size(); k++) {
                                     if (dataArray.get(k).getString("url").equals(current_url))  //if this website is already visited (came from another word)
@@ -206,13 +206,10 @@ public class SpringController {
                                         double oldrank = dataArray.get(k).getDouble("rank");
 
                                         dataArray.set(k,new Document().append("url",oldurl).append("title",oldtitle).append("snippet",oldsnippet).append("count",oldcount).append("rank", oldrank + TF_IDF*10000 + 100));
-                                        //System.out.println(dataArray.get(k).getString("url") + " " + dataArray.get(k).getString("count"));
                                     }
                                 }
                             }
                             if (!alreadyExist) {
-                                //dataArray.push({"url": resultArray[i][0].Websites[index].URL, "title": resultArray[i][0].Websites[index].title, "snippet": resultArray[i][0].Websites[index].snippet, "count": 1});
-
                                 Document web_site = resultArray.get(i).getList("Websites", Document.class).get(index);
                                 String added_url = web_site.getString("URL");
                                 String added_title = web_site.getString("title");
