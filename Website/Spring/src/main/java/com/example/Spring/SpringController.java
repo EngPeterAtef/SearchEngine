@@ -25,17 +25,9 @@ public class SpringController {
     DBController dbController = new DBController();
     //----------SAVE SUGGESTION IN DATABASE-----------
     @RequestMapping(value="/search", method = RequestMethod.GET)
-    public String SaveSuggestion(Model model,@RequestParam(value = "query") String query) {
+    @ResponseBody
+    public void SaveSuggestion(Model model,@RequestParam(value = "query") String query) {
         dbController.InsertOrUpdateSuggestion(query);
-        ArrayOfquery = query.split(" ");
-        c = 0;
-        dataArray.clear();
-        matchingArray.clear();
-        FindAndRank(query);
-//        String ResultsPage = "<!doctype html> <html><body align=\"center\">"+ dataArray +"</body></html>";
-        model.addAttribute("query", query);
-        model.addAttribute("results", dataArray);
-        return "results";
     }
     //------------SEARCHING-----------
     @RequestMapping(value="/results/{query}", method = RequestMethod.GET)
@@ -121,34 +113,36 @@ public class SpringController {
                     }
                 }
                 double IDF = Math.log(5000.0 / matchingArray.size());
-                double TF = 0;
-                double TF_IDF = 0;
+                double TF = 1;
+                double TF_IDF = 1;
                 long tags = 0;
                 //get all the websites that has this word
                 for (int index = 0; index < matchingArray.size(); index++) {
                     Document siteResult = dbController.GetSiteFromWebsiteData(matchingArray.get(index).getString("url"));
                     if (siteResult != null) {
                         String str = siteResult.getString("body");
-                        for (int i = 0; i < ArrayOfquery.length; i++) {
-                            for (int j = 0; j < resultArray.get(i).getList("Websites", Document.class).size(); j++) {
-                                if (matchingArray.get(index).getString("url").equals(resultArray.get(i).getList("Websites", Document.class).get(j).getString("URL"))) {
-                                    TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF");
-                                    tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags");
-                                    tags = (long)(Math.log(tags) / Math.log(2));
-                                    TF_IDF += TF * IDF;
-                                    //								System.out.println(matchingArray.get(index).getString("url") + " " + TF_IDF);
+                        //for (int i = 0; i < ArrayOfquery.length; i++) {
+                            for (int j = 0; j < resultArray.get(0).getList("Websites", Document.class).size(); j++) {
+                                if (matchingArray.get(index).getString("url").equals(resultArray.get(0).getList("Websites", Document.class).get(j).getString("URL"))) {
+                                    tags = resultArray.get(0).getList("Websites", Document.class).get(j).getLong("Tags");
+                                    break;
                                 }
                             }
-                        }
+                        //}
+                        TF = matchingArray.get(index).getInteger("phraseCount");
+                        TF_IDF = TF * IDF;
                         // let str = siteResult[0].body;
                         int indexOFquery = str.indexOf(query);
                         //resultArray[i][0].Websites[index].title = siteResult[0].title;
                         //resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
-                        dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", str.substring(Math.max(0, indexOFquery - 200), Math.min(indexOFquery + query.length() + 300, str.length()))));
+                        double rank = tags + TF_IDF*10000 + siteResult.getInteger("popularity");
+                        dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", str.toLowerCase().substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + queryString_2.length() + 300,str.length())).replaceAll(queryString_2,"<span id=\"boldedWord\"> " + queryString_2 + " </span>")).append("rank", rank));
+                        System.out.println(matchingArray.get(index).getString("url") + " -- TF-IDF :" + TF_IDF + " -- Tags : "+tags + " -- Rank : " + rank);
+
                         //TF = resultArray[i][0].Websites[index].locations / str.length;
                         //TF_IDF = TF * IDF;
-                        dataArray.set(c, dataArray.get(c).append("rank", tags + TF_IDF + siteResult.getInteger("popularity") + matchingArray.get(index).getInteger("phraseCount")));
-                        c++;
+//                        dataArray.set(c, dataArray.get(c).append("rank", tags + TF_IDF*10000 + siteResult.getInteger("popularity") + matchingArray.get(index).getInteger("phraseCount")));
+                        //c++;
                     }
                 }
             }
@@ -177,25 +171,28 @@ public class SpringController {
                         if(siteResult != null)
                         {
                             String str = siteResult.getString("body");
-                            int indexOFquery = str.indexOf(query);
+                            int indexOFquery = str.indexOf(ArrayOfquery[i]);
                             resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("title",siteResult.getString("title")));
-                            resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length() + 300,str.length())).toLowerCase().replaceAll(query,"<span id=\"boldedWord\"> " + query + " </span>")));
+                            resultArray.get(i).getList("Websites", Document.class).set(index,resultArray.get(i).getList("Websites", Document.class).get(index).append("snippet",str.toLowerCase().substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + ArrayOfquery[i].length() + 300,str.length())).replaceAll(ArrayOfquery[i],"<span id=\"boldedWord\"> " + ArrayOfquery[i] + " </span>")));
 
                             boolean alreadyExist = false;
                             Popularity =  siteResult.getInteger("popularity");
                             TF = resultArray.get(i).getList("Websites", Document.class).get(index).getDouble("TF");
                             tags = resultArray.get(i).getList("Websites", Document.class).get(index).getLong("Tags");
-                            tags = (long)(Math.log(tags) / Math.log(2));
+                            //tags = (int)(Math.log(tags) / Math.log(2));
                             TF_IDF = TF * IDF;
+                            //System.out.println(siteResult.getString("url")+" : "+10000* TF_IDF+"  " +tags);
                             for (int k = 0; k < dataArray.size(); k++) {
                                 if (dataArray.get(k).getString("url").equals(resultArray.get(i).getList("Websites", Document.class).get(index).getString("URL")) ) {
 
                                     alreadyExist = true;
-                                    double oldcount = dataArray.get(k).getDouble("count");
-                                    dataArray.set(k,dataArray.get(k).append("count",oldcount+1));
-
+                                    int oldcount = dataArray.get(k).getInteger("count");
+                                    String oldurl = dataArray.get(k).getString("url");
+                                    String oldtitle = dataArray.get(k).getString("title");
+                                    String oldsnippet = dataArray.get(k).getString("snippet");
                                     double oldrank = dataArray.get(k).getDouble("rank");
-                                    dataArray.set(k,dataArray.get(k).append("rank",oldrank + TF_IDF + 100));
+
+                                    dataArray.set(k,new Document().append("url",oldurl).append("title",oldtitle).append("snippet",oldsnippet).append("count",oldcount).append("rank", oldrank + TF_IDF*10000 + 100));
                                     System.out.println(dataArray.get(k).getString("url") + " " + dataArray.get(k).getString("count"));
                                 }
                             }
@@ -207,7 +204,7 @@ public class SpringController {
                                 String added_title = web_site.getString("title");
                                 String added_snippet = web_site.getString("snippet");
                                 String added_count = web_site.getString("count");
-                                dataArray.add(new Document().append("url",added_url).append("title",added_title).append("snippet",added_snippet).append("count",added_count).append("rank", Popularity + 1000 * TF_IDF + tags));
+                                dataArray.add(new Document().append("url",added_url).append("title",added_title).append("snippet",added_snippet).append("count",added_count).append("rank", Popularity + 10000 * TF_IDF + tags));
                                 //dataArray[index].rank =  TF_IDF + Popularity;
                                 //double oldrank = dataArray.get(index).getDouble("rank");
 								//dataArray.set(index,dataArray.get(index).append("rank",Popularity + TF_IDF));

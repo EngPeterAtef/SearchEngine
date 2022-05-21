@@ -94,22 +94,27 @@ public class DBController {
     }
     public ArrayList<Document> SortDocuments(ArrayList<Document> data){
         MongoCollection<Document> sortCollection = database.getCollection("sort");
-        sortCollection.deleteMany(new Document());
-        sortCollection.insertMany(data);
         ArrayList<Document> result = null;
-        try (MongoCursor<Document> cursor = sortCollection.find().sort(Sorts.descending("rank")).iterator()){
-            if(cursor.hasNext()) {
-                result = new ArrayList<>();
-                while (cursor.hasNext()) {
-                    Document doc = cursor.next();
-                    result.add(doc);
+        sortCollection.deleteMany(new Document());
+        if (data != null)
+        {
+            sortCollection.insertMany(data);
+            try (MongoCursor<Document> cursor = sortCollection.find().sort(Sorts.descending("rank")).iterator()){
+                if(cursor.hasNext()) {
+                    result = new ArrayList<>();
+                    while (cursor.hasNext()) {
+                        Document doc = cursor.next();
+                        result.add(doc);
+                    }
                 }
-            }
 //            for (Document doc : result) {
-//                System.out.println(result.url);
+//                System.out.println(doc.getString("url"));
+//                System.out.println(doc.getDouble("rank")+"\n\n");
 //            }
-        } catch (MongoException me) {
-            System.err.println("Unable to sort data due to an error: " + me);
+            } catch (MongoException me) {
+                System.err.println("Unable to sort data due to an error: " + me);
+            }
+
         }
         return result;
     }
