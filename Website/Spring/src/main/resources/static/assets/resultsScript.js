@@ -15,7 +15,7 @@ $(document).ready(function(){
                     <h3 class="in-tit">
                         <a href="${pageContent[i].url}">${pageContent[i].title}</a>
                     </h3>
-                    <p class="in-sum">${pageContent[i].snippet}</p>
+                    <p class="in-sum">${pageContent[i].snippet}...</p>
                 </div >`);
             }
 

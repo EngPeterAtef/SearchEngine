@@ -96,7 +96,7 @@ public class DBController {
         MongoCollection<Document> sortCollection = database.getCollection("sort");
         ArrayList<Document> result = null;
         sortCollection.deleteMany(new Document());
-        if (data != null)
+        if (!data.isEmpty())
         {
             sortCollection.insertMany(data);
             try (MongoCursor<Document> cursor = sortCollection.find().sort(Sorts.descending("rank")).iterator()){

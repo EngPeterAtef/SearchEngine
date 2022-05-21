@@ -520,8 +520,8 @@ public class Indexer {
 //                    continue;
 
                 Document adoc=Jsoup.parse(CollectedData.get(i).html.toLowerCase());//with tags
-
-                 List<String> allWords = new ArrayList<String>();
+                CollectedData.get(i).html = "";
+                List<String> allWords = new ArrayList<String>();
                 List<String> allWordstemp = new ArrayList<String>();
                 HashMap<String,BitSet>importantWords=  tosettags(adoc);
 

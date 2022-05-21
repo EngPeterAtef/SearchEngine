@@ -74,6 +74,7 @@ $(document).ready(function(){
     $('#searchWord').focus();
     $('ul').hide();
     $('form').css("border-radius"," 20px 20px 20px 20px");
+    $('#searchBtn').trigger('click');
   });
   //--------------------------------------------------------//
   //----------------VOICE RECOGNITION------------------//
@@ -118,21 +119,36 @@ $(document).ready(function(){
     $(document).on('keydown', function(e){
       let keycode = (e.keyCode ? e.keyCode :e.which);
       let sugg = $("form ul").children();
+
           if(keycode == '40') {
+
             if(active < $("form ul").children().length - 1)
             {
               active++;
               sugg[active].focus();
-              consol.log(active);
+              //sugg[active].setAttribute("style","background-color:#404040;");
+              //sugg[active].style.backgroundColor = "#404040";
+            }
+            else
+            {
+                active=0;
+                sugg[active].focus();
+                //sugg[active].setAttribute("style","background-color:#404040;");
             }
           }
           else if(keycode == '38') {
             if(active > - 1)
             {
-              
-              sugg[active].focus();
+
               active--;
-              consol.log(active);
+              sugg[active].focus();
+              //sugg[active].setAttribute("style","background-color:#404040;");
+            }
+            else
+            {
+                active=$("form ul").children().length - 1;
+                sugg[active].focus();
+                //sugg[active].setAttribute("style","background-color:#404040;");
             }
           }
     });

@@ -31,7 +31,7 @@ class CrawlerRunnable implements Runnable{
 }
 public class Crawler{
     //Maximum number of total visited pages, 5000 in this project
-    private static final int MAX_PAGES = 100;
+    private static final int MAX_PAGES = 5000;
     //number of threads used
     private static int NUM_THREADS;
     //list of visited links to not visit a link again
@@ -297,6 +297,14 @@ public class Crawler{
                 URLQueue link1= new URLQueue("https://en.wikipedia.org/wiki/The_Batman_(film)", false, -1, "");
                 URLQueue link2= new URLQueue("https://www.bbc.com", false, -1, "");
                 URLQueue link3= new URLQueue("https://www.nytimes.com/", false, -1, "");
+                URLQueue link4= new URLQueue("https://dmoz-odp.org/", false, -1, "");
+                URLQueue link5= new URLQueue("https://search.yahoo.com/web?fr=", false, -1, "");
+                URLQueue link6= new URLQueue("https://www.facebook.com/", false, -1, "");
+                URLQueue link7= new URLQueue("https://twitter.com/", false, -1, "");
+                URLQueue link8= new URLQueue("https://twitter.com/", false, -1, "");
+                URLQueue link9= new URLQueue("https://twitter.com/", false, -1, "");
+                URLQueue link10= new URLQueue("https://twitter.com/", false, -1, "");
+
 //                WriteToQueueFile(link1);
 //                WriteToQueueFile(link2);
 //                WriteToQueueFile(link3);
@@ -304,9 +312,24 @@ public class Crawler{
                 URLs.add(link1);
                 URLs.add(link2);
                 URLs.add(link3);
+                URLs.add(link4);
+                URLs.add(link5);
+                URLs.add(link6);
+                URLs.add(link7);
+                URLs.add(link8);
+                URLs.add(link9);
+                URLs.add(link10);
+
                 crawlerObj.DBControllerObj.AddToQueue(link1);
                 crawlerObj.DBControllerObj.AddToQueue(link2);
                 crawlerObj.DBControllerObj.AddToQueue(link3);
+                crawlerObj.DBControllerObj.AddToQueue(link4);
+                crawlerObj.DBControllerObj.AddToQueue(link5);
+                crawlerObj.DBControllerObj.AddToQueue(link6);
+                crawlerObj.DBControllerObj.AddToQueue(link7);
+                crawlerObj.DBControllerObj.AddToQueue(link8);
+                crawlerObj.DBControllerObj.AddToQueue(link9);
+                crawlerObj.DBControllerObj.AddToQueue(link10);
             }
             //--FILE IS NOT EMPTY, THEN CONTINUE FROM LAST STATE
             else {

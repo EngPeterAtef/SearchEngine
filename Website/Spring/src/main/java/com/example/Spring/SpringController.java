@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class SpringController {
@@ -40,7 +41,14 @@ public class SpringController {
         matchingArray.clear();
         FindAndRank(query);
         dataArray = dbController.SortDocuments(dataArray);
-        btnNumber = (int) Math.ceil(dataArray.size()/10.0);
+        if(dataArray != null)
+        {
+            btnNumber = (int) Math.ceil(dataArray.size()/10.0);
+        }
+        else
+        {
+            dataArray = new ArrayList<>();
+        }
         long endTime   = System.nanoTime();
         float totalTime = (float) ((endTime-startTime)/1000000000.0);
         DecimalFormat df = new DecimalFormat("#.###");
@@ -132,12 +140,15 @@ public class SpringController {
                         TF = matchingArray.get(index).getInteger("phraseCount");
                         TF_IDF = TF * IDF;
                         // let str = siteResult[0].body;
-                        int indexOFquery = str.indexOf(query);
+
+
                         //resultArray[i][0].Websites[index].title = siteResult[0].title;
                         //resultArray[i][0].Websites[index].snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + query.length + 300,str.length));
                         double rank = tags + TF_IDF*10000 + siteResult.getInteger("popularity");
-                        dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", str.toLowerCase().substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + queryString_2.length() + 300,str.length())).replaceAll(queryString_2,"<span id=\"boldedWord\"> " + queryString_2 + " </span>")).append("rank", rank));
-                        System.out.println(matchingArray.get(index).getString("url") + " -- TF-IDF :" + TF_IDF + " -- Tags : "+tags + " -- Rank : " + rank);
+                        int indexOFquery = str.indexOf(queryString_2);
+                        String snippet = str.substring(Math.max(0,indexOFquery - 200),Math.min(indexOFquery + queryString_2.length() + 350,str.length())).replaceAll(queryString_2,"<span id=\"boldedWord\"> " + queryString_2.toLowerCase() + " </span>");
+                        dataArray.add(new Document().append("url", matchingArray.get(index).getString("url")).append("title", siteResult.getString("title")).append("snippet", snippet).append("rank", rank));
+                        //System.out.println(matchingArray.get(index).getString("url") + " -- TF-IDF :" + TF_IDF + " -- Tags : "+tags + " -- Rank : " + rank);
 
                         //TF = resultArray[i][0].Websites[index].locations / str.length;
                         //TF_IDF = TF * IDF;

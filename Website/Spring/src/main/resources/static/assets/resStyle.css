@@ -157,10 +157,12 @@ color:#000000d5;
 .btns{
   margin-top: 20px;
   margin-bottom: 20px;
-  max-width: 1305px;
+  max-width: 1298px;
   position: relative;
   top: 50%;
   left: 10%;
+  padding: 7px;
+  overflow-wrap: break-word;
 }
 .btns a{
   margin-left: 5px;
