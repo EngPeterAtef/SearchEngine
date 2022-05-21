@@ -1,6 +1,4 @@
 package Crawler;
-//FOR JSON FILES
-import com.google.gson.*;
 //JSOUP
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -49,11 +47,6 @@ public class Crawler{
     static final Object LOCK1 = new Object();
     static final Object LOCK2 = new Object();
 
-    static Gson gson = null;
-
-    // create a reader
-//    static Reader queueReader = null;
-//    static Reader dataReader = null;
     //database controller
     Controller DBControllerObj;
     static int queueSize;
@@ -72,38 +65,17 @@ public class Crawler{
     }
     public void StartCrawler()
     {
-//        synchronized (this) {
-//            while (Integer.parseInt(Thread.currentThread().getName()) + 1 > URLs.size()){
-//                try {
-//                    System.out.println("Thread: " + Thread.currentThread().getName() + " ,Size: " + URLs.size() + " " + this);
-//                    wait();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            System.out.println("Thread: " + Thread.currentThread().getName() + " ,woke up");
-//        }
         while (true){
-//            System.out.printf("Thread: %s, size: %d\n", Thread.currentThread().getName(), i);
-//            System.out.println("Thread: "+ Integer.parseInt(Thread.currentThread().getName()));
             URLQueue URLObj = null;
             synchronized (LOCK1){
                 if (URLs.isEmpty()){
-//                    synchronized (this){
-//                        notifyAll();
-//                    }
                     return;
                 }
-//                System.out.println(i);
-//                i++;
                 URLObj = URLs.get(0);
                 URLs.remove(0);
-//                System.out.println(URLObj.url);
             }
-                //System.out.println(URLObj.url);
-                //if the link is not visited before, visit it (get its html content)
+            //if the link is not visited before, visit it (get its html content)
             if (!URLObj.visited) {
-//                System.out.println("not visited");
                 String url = URLObj.url;
                 Document doc = request(url);
                 if (doc != null) {
@@ -114,26 +86,18 @@ public class Crawler{
                         normalizedUrls.add(n);
                         //-----INSERT DATA TO FILE----
                         URLObj.visited = true;
-                        //System.out.println(n);
                         URLObj.normalization = n;
                         //set the site to visited
-//                            synchronized (URLs){
-//                                URLs.set(i, URLObj);
-//                            }
                         Data data = new Data(url, false, doc.html());
-                        //update queue file to update the visited status in file
-//                            UpdateQueueFile();
                         //mongodb
                         DBControllerObj.UpdateQueue(URLObj);
                         //update data file to add new html
-//                            WriteToDataFile(data);
                         DBControllerObj.AddToCollectedData(data);
                         DBControllerObj.AddSiteData(url, doc.title(), doc.body().text());
                         crawl(Integer.parseInt(Thread.currentThread().getName()), doc,url);
                     }
                     else{
-//                          //if the normalization existed before, remove site from queue to not visit it again
-//                            UpdateQueueFile();
+                        //if the normalization existed before, remove site from queue to not visit it again
                         //mongodb
                         DBControllerObj.RemoveFromQueue(URLObj);
                         synchronized (LOCK2){
@@ -148,10 +112,6 @@ public class Crawler{
                     }
                 }
             }
-//            synchronized (this){
-//                System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
-//                notifyAll();
-//            }
         }
     }
 
@@ -183,7 +143,7 @@ public class Crawler{
             while((line = in.readLine()) != null) {
                 String dis = line.substring(0, Math.min(line.length(), 11));
                 if (dis.equals("Disallow: /")){
-                    System.out.println(line);
+//                    System.out.println(line);
                     String d = link+line.substring(11,line.length()) ;
 //                    System.out.println(d);
                     synchronized (RobotLinks){
@@ -218,8 +178,6 @@ public class Crawler{
                     }
                     System.out.println("Thread: "+ level);
                     URLQueue nxtLink = new URLQueue(next_link, false, level, "");
-                    //insert to json
-//                    WriteToQueueFile(nxtLink);
                     //Insert to mongodb
                     synchronized (LOCK2){
                         URLs.add(nxtLink);
@@ -227,10 +185,6 @@ public class Crawler{
                         UrlsInQueue.add(next_link);
                     }
                     DBControllerObj.AddToQueue(nxtLink);
-//                    synchronized (this){
-//                        System.out.println("Thread: " + Thread.currentThread().getName() + " ,Notifying " + this);
-//                        notifyAll();
-//                    }
                 }
                 else if (UrlsInQueue.contains(next_link)){
                     synchronized (LOCK2){
@@ -264,22 +218,12 @@ public class Crawler{
         Crawler crawlerObj = new Crawler();
         crawlerObj.DBControllerObj = new Controller(true);
         try {
-            // create Gson instance
-//            gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-
-            // create a reader
-//            queueReader = Files.newBufferedReader(Paths.get("queue.json"));
-//            dataReader = Files.newBufferedReader(Paths.get("data.json"));
-
             // convert JSON array to list of users
             URLs = crawlerObj.DBControllerObj.GetUrlQueue();
 //            for (URLQueue queue : URLs) {
 //                System.out.println(queue.url);
 //            }
-
-//            URLs = gson.fromJson(queueReader, new TypeToken<List<URLQueue>>(){}.getType());
             CollectedData = crawlerObj.DBControllerObj.GetCollectedData();
-//            CollectedData = gson.fromJson(dataReader, new TypeToken<List<Data>>(){}.getType());
             //READ ROBOT.TXT FILE
             RobotLinks = Files.readAllLines(Paths.get("robot.txt"));
             if (CollectedData == null) {
@@ -301,13 +245,6 @@ public class Crawler{
                 URLQueue link5= new URLQueue("https://search.yahoo.com/web?fr=", false, -1, "");
                 URLQueue link6= new URLQueue("https://www.facebook.com/", false, -1, "");
                 URLQueue link7= new URLQueue("https://twitter.com/", false, -1, "");
-                URLQueue link8= new URLQueue("https://twitter.com/", false, -1, "");
-                URLQueue link9= new URLQueue("https://twitter.com/", false, -1, "");
-                URLQueue link10= new URLQueue("https://twitter.com/", false, -1, "");
-
-//                WriteToQueueFile(link1);
-//                WriteToQueueFile(link2);
-//                WriteToQueueFile(link3);
                 URLs = new ArrayList<>();
                 URLs.add(link1);
                 URLs.add(link2);
@@ -316,10 +253,6 @@ public class Crawler{
                 URLs.add(link5);
                 URLs.add(link6);
                 URLs.add(link7);
-                URLs.add(link8);
-                URLs.add(link9);
-                URLs.add(link10);
-
                 crawlerObj.DBControllerObj.AddToQueue(link1);
                 crawlerObj.DBControllerObj.AddToQueue(link2);
                 crawlerObj.DBControllerObj.AddToQueue(link3);
@@ -327,22 +260,14 @@ public class Crawler{
                 crawlerObj.DBControllerObj.AddToQueue(link5);
                 crawlerObj.DBControllerObj.AddToQueue(link6);
                 crawlerObj.DBControllerObj.AddToQueue(link7);
-                crawlerObj.DBControllerObj.AddToQueue(link8);
-                crawlerObj.DBControllerObj.AddToQueue(link9);
-                crawlerObj.DBControllerObj.AddToQueue(link10);
             }
             //--FILE IS NOT EMPTY, THEN CONTINUE FROM LAST STATE
             else {
-                /*
-                 * STILL NOT COMPLETE
-                 * ******/
                 System.out.println("queue not NULL");
                 int visitedNum = 0;
                 for (int i = 0; i < URLs.size(); i++) {
                     normalizedUrls.add(URLs.get(i).normalization);
-//                    if (URLs.get(i).visited){
-//                        visitedNum++;
-//                    }
+
                 }
 //                if (visitedNum == URLs.size())
 //                    return;
@@ -352,10 +277,6 @@ public class Crawler{
             for (int i = 0; i < URLs.size(); i++) {
                 UrlsInQueue.add(URLs.get(i).url);
             }
-            // close reader
-//            queueReader.close();
-//            dataReader.close();
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -368,7 +289,6 @@ public class Crawler{
             bw = new BufferedWriter(fw);
             robotWriter = new PrintWriter(bw);
         } catch (IOException e) {
-            //exception handling left as an exercise for the reader
         }
         System.out.println("\n\nEnter number of threads");
         Scanner scanner = new Scanner(System.in);
@@ -380,6 +300,7 @@ public class Crawler{
             threads[i] = new Thread(new CrawlerRunnable(crawlerObj));
             threads[i].setName(String.valueOf(i));
             threads[i].start();
+            System.out.println("Thread " + i + " started");
         }
         for (int i = 0; i < NUM_THREADS; i++) {
             try {
@@ -390,54 +311,4 @@ public class Crawler{
         }
 
     }
-//    private static void WriteToQueueFile(URLQueue obj){
-//        synchronized (gson) {
-//            if (URLs == null){
-//                URLs = new ArrayList<URLQueue>();
-//            }
-//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-//            Writer writer = null;
-//            try {
-//                writer = Files.newBufferedWriter(Paths.get("queue.json"));
-//                URLs.add(obj);
-//                gson.toJson(URLs, writer);
-//                writer.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//    private static void UpdateQueueFile(){
-//        synchronized (gson) {
-//            if (URLs == null){
-//                URLs = new ArrayList<URLQueue>();
-//            }
-//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-//            Writer writer = null;
-//            try {
-//                writer = Files.newBufferedWriter(Paths.get("queue.json"));
-//                gson.toJson(URLs, writer);
-//                writer.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-//    private static void WriteToDataFile(Data obj){
-//        synchronized (gson) {
-//            if (CollectedData == null){
-//                CollectedData = new ArrayList<Data>();
-//            }
-//    //        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-//            Writer writer = null;
-//            try {
-//                writer = Files.newBufferedWriter(Paths.get("data.json"));
-//                CollectedData.add(obj);
-//                gson.toJson(CollectedData, writer);
-//                writer.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 }
