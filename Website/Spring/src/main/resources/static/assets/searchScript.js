@@ -108,7 +108,7 @@ $(document).ready(function(){
     mic.css("color", "#808080");
   }
   $("#voiceRec").click(function(event) {
-    content =' ';
+    content ='';
     recognition.start();
     mic.css("color", "red");
   });

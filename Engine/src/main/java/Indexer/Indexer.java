@@ -4,45 +4,16 @@ import Database.Controller;
 /* Java program to find a Pair which has maximum score*/
 
 import Database.Controller.Data;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import opennlp.tools.stemmer.PorterStemmer;
-import com.google.gson.*;
 import java.lang.Integer;
-import com.google.gson.reflect.TypeToken;
-import static com.mongodb.client.model.Filters.eq;
-import com.mongodb.MongoException;
-//  import org.bson.Document;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.result.InsertOneResult;
-import org.bson.types.ObjectId;
-import org.jsoup.safety.Safelist;
-import org.jsoup.safety.Whitelist;
-import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-
 
 //import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-//import org.jsoup.Jsoup;
-//import org.jsoup.nodes.Document;
-//import org.jsoup.select.Elements;
-
-import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.*;
-import java.util.Map.Entry;
 
 
 
@@ -52,133 +23,8 @@ public class Indexer {
 
     Controller DBControllerObj = new Controller(true);
     private static List<String>docs=new ArrayList<String>();
-    // private static  FileWriter writ;
-   /* public class syncho implements Runnable{
-        //lock  = calling object => which is the thread
-        private Indexer x;
-        public syncho(Indexer y){
-            x = y;
-        }
-        public void run()
-        {
-            Stack<String>tagstack=new Stack<>();
-            Integer rem=allWords.size()%10;
-            Integer range=allWords.size()/10;
-            Integer start=Integer.parseInt(Thread.currentThread().getName())*range;
-            Integer end;
-            if(Thread.currentThread().getName().equals("9"))
-                end=start+range+rem;
-            else end=start+range;
-
-            int ew=0;
-            Iterator<String> itr = allWords.iterator();
-            while(itr.hasNext())
-            {
-                if(ew==start)
-                    break;
-                {
-                    ew++;
-                    itr.next();
-
-                }
-            }
-            while(ew<end)// ma3aya kelma
-            {
-                HashMap <String,triple>tempo = new HashMap<String,triple>();
-
-                ew++;
-                String aword=itr.next();
-
-
-
-                for (int k=0;k<docs.size();k++)// le kol doc
-                {
-                    triple temppair = new triple();
-                    // temppair.positions=new ArrayList<>();
-
-                    //  Elements selectResult=docs.get(k).getElementsContainingOwnText(aword);
-                    int index = 0;
-                    int tobegin=0,toend=0;
-                    while (true)
-                    {
-
-                        index = docs.get(k).indexOf(aword, index);
-
-                        if (index != -1)
-                        {
-
-                            tobegin=Math.max(docs.get(k).substring(0,index).lastIndexOf(" "),docs.get(k).substring(0,index).lastIndexOf(">"));
-                            if(tobegin<0)
-                            tobegin=0;
-
-                            toend=Math.min(docs.get(k).indexOf("<", index),docs.get(k).indexOf(" ", index));
-                         //   System.out.println("tobegin "+tobegin+" toend "+toend+" lenght"+docs.get(k).length()+" "+docs.get(k).length());
-                            if(toend<=0)
-                            {
-                                //System.out.println("me"+docs.get(k).substring(tobegin,docs.get(k).length())+"me");
-                                toend=docs.get(k).length();
-                            }
-//                            if(tobegin<=0)System.out.println("tobegin "+tobegin+"index "+index+" + "+" aword "+aword+" k "+k);
-//                            if(toend<0)System.out.println("toend "+toend);
-//                            if(k<0)System.out.println("k XD "+k);
-                            //System.out.println(docs.get(k).substring(tobegin+1, toend));
-                            //System.out.println("kio");
-                            String l;
-                            if(tobegin>=0)
-                            l=docs.get(k).substring(tobegin+1, toend).replaceAll(" ","");
-                            else
-                                l=docs.get(k).substring(tobegin, toend).replaceAll(" ","");
-                            System.out.println(l);
-                            if(!aword.equals( p.stem(l) ) )
-                            {
-
-                                index=toend;
-                                continue;
-                            }
-                            //System.out.println("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-                            temppair.count++;
-                            temppair.positions.add(index);
-
-
-                            index=toend;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-
-                    if(temppair.count!=0)
-                    {
-//                        if(temppair.positions.size()!=0)
-//                        {
-                            Stack<String>ast=new Stack<String>();
-                            getallparents(temppair.positions.get(0),k,ast);
-                            BitSet allparen=new BitSet(15);
-                            for(String g:ast)
-                                setlocations(g,allparen);
-                            temppair.location=allparen;
-                        //}
-                        tempo.put(CollectedData.get(k).url, temppair);
-                    }
-
-
-
-                }
-                synchronized (this.x) {
-//                    indexermap.put(aword,tempo);
-                   // System.out.println(ew);
-                    DBControllerObj.insertIndexedWord(aword, tempo);
-                }
-
-
-            }
-        }
-    }*/
-
-    private static List<List<pair>>tagsList=new ArrayList<>();
     private static List<Data> CollectedData = null;// areay of websirtes
     private static HashMap<String, HashMap<String,triple>> indexermap = new HashMap<String, HashMap<String, triple>>();
-    private static List<HashMap<String, HashMap<String, triple>>> subindexermap=new ArrayList<HashMap<String, HashMap<String,triple>>>();
     // word //url //occurrences
     private static List<String> stopwords = null;
 
@@ -190,16 +36,11 @@ public class Indexer {
 
     public static class triple {
        public Integer count;
-        // public BitSet location ;
         public BitSet location;
-       // public List<Integer>positions;
         public Float TF;
 
 
         triple() {
-
-//            location=new BitSet(11);
-//            positions=new ArrayList<>();
             count = 0;
             TF = 0.0f;
         }
@@ -503,21 +344,15 @@ public class Indexer {
             }
             //-----------------------------------------
 
-//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            // create a reader
-//          Reader reader = Files.newBufferedReader(Paths.get("E:/Koleya/APT/proj/SearchEngine/Engine/CollectedData.json"));
 
-
-//          CollectedData = gson.fromJson(reader, new TypeToken<List<Data>>() {}.getType());// array of json objects websites
-//            reader.close();
             // array of stop wordss
             stopwords = Files.readAllLines(Paths.get("stop_words_english.txt"));
 
 
 
             for (int i = 0; i < CollectedData.size(); i++) {
-//                if(CollectedData.get(i).visited==true)
-//                    continue;
+                if(CollectedData.get(i).visited==true)
+                    continue;
 
                 Document adoc=Jsoup.parse(CollectedData.get(i).html.toLowerCase());//with tags
                 CollectedData.get(i).html = "";
@@ -575,20 +410,18 @@ public class Indexer {
                        indexermap.get(s).put(CollectedData.get(i).url,WebTriple);
 
                    }
-                else{//word in db and same website
-                       indexermap.get(s).get(CollectedData.get(i).url).TF+=1.0f/allWordstemp.size();
-                       indexermap.get(s).get(CollectedData.get(i).url).count++;
+                    else{//word in db and same website
+                           indexermap.get(s).get(CollectedData.get(i).url).TF+=1.0f/allWordstemp.size();
+                           indexermap.get(s).get(CollectedData.get(i).url).count++;
+
+                    }
 
                 }
-
-                }
-
-                   //url string
-
-
-                System.out.println("mo");
+                CollectedData.get(i).visited=true;
+                indexerObj.DBControllerObj.UpdateVisitedInCollectedData(CollectedData.get(i).url, true);
+                //url string
+                System.out.println(i);
                 CollectedData.get(i).html = "";
-
             }
 
 
@@ -616,7 +449,6 @@ public class Indexer {
 //            t0.start();t1.start();t2.start();t3.start();t4.start();t5.start();t6.start();t7.start();   t8.start();   t9.start();
 //            t0.join();t1.join();t2.join();t3.join();t4.join();t5.join();t6.join();t7.join();t8.join();t9.join();
             System.out.println("joined");
-//            System.out.println(indexermap.size());
 
             indexerObj.DBControllerObj.indexerone(indexermap,CollectedData.size());
 
